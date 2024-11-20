@@ -51,7 +51,7 @@ def page_not_found(errorcode):
 	return Response(response=json.dumps(error), status=errorcode.code, mimetype="application/json")
 
 current_dir = os.path.dirname(__file__)
-db_path = os.path.join(current_dir, '..', '..', 'db.json')
+db_path = os.path.join(current_dir, '..', 'db.json')
 with open(db_path) as file:
 	database = json.load(file)
 connection = mysql.connector.connect(
