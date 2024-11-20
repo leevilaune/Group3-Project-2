@@ -4,8 +4,12 @@ import os
 
 import mysql.connector
 
-app = Flask(__name__)
+from backend.game.Database import Database
+from backend.game.Plane import PlaneManager
 
+app = Flask(__name__)
+db = Database()
+pm = PlaneManager(db)
 @app.route("/airport/<icao>")
 def get_airport(icao):
 	airport = get_airports(icao)
@@ -29,7 +33,8 @@ def get_player(name):
 
 @app.route("/api/plane")
 def get_plane():
-	data = get_static_data("plane")
+	data = pm.get_random_planes(3)
+	print(data)
 	if data is None:
 		return Response(response=json.dumps({"code": 404, "text": f"Planes not found"}), status=404,
 		                mimetype="application/json")
@@ -81,14 +86,6 @@ def get_player_data(name: str)->dict:
     """
 	cursor.execute(fetch_player_sql)
 	return cursor.fetchone()
-
-def get_static_data(table)->dict:
-	fetch_data_sql = f"""
-	SELECT *
-	FROM {table}
-	"""
-	cursor.execute(fetch_data_sql)
-	return cursor.fetchall()
 
 if __name__ == '__main__':
 	app.run(use_reloader=False,
