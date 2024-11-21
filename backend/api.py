@@ -1,10 +1,12 @@
-from flask import Flask, Response
+from flask import Flask, Response, request
+from flask_cors import CORS
 import json
 import os
 
 import mysql.connector
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route("/airport/<icao>")
 def get_airport(icao):
