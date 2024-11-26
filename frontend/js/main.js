@@ -7,22 +7,23 @@
 //3 plane options
 //random encounter
 
-const fetchAirportByIcao = async (icao) => {
+const fetchData = async (table, data) => {
 	const fetchOptions = {
 		method: "GET",
 		headers: {
 			"Content-Type": "application/json",
 		}
 	}
-	const url = "http://127.0.0.1:3000/airport/"
+	const url = "http://127.0.0.1:3000/"
 	try {
-		const response = await fetch(url + icao, fetchOptions)
+		const response = await fetch(url + table + "/" + data, fetchOptions)
 		if (response.ok) {
-			console.log("promise resolved and HTTP status is succesfull")
+			console.log("promise resolved and HTTP status is succesful")
 			const json_response = await response.json()
-			console.log(json_response)
+			return json_response
 		} else {
 			const json_response = await response.json()
+			// json_response still needs to get processed
 			console.log(json_response.text)
 		}
 	} catch (error) {
@@ -30,7 +31,7 @@ const fetchAirportByIcao = async (icao) => {
 	}
 }
 
-const fetchData = async (table) => {
+const fetchTable = async (table) => {
 	const fetchOptions = {
 		method: "GET",
 		headers: {
@@ -41,34 +42,12 @@ const fetchData = async (table) => {
 	try {
 		const response = await fetch(url + table, fetchOptions)
 		if (response.ok) {
-			console.log("promise resolved and HTTP status is succesfull")
+			console.log("promise resolved and HTTP status is succesful")
 			const json_response = await response.json()
-			console.log(json_response)
+			return json_response
 		} else {
 			const json_response = await response.json()
-			console.log(json_response.text)
-		}
-	} catch (error) {
-		console.error("promise rejected: " + error.message)
-	}
-}
-
-const fetchPlayer = async (name) => {
-	const fetchOptions = {
-		method: "GET",
-		headers: {
-			"Content-Type": "application/json",
-		}
-	}
-	const url = "http://127.0.0.1:3000/player/"
-	try {
-		const response = await fetch(url + name, fetchOptions)
-		if (response.ok) {
-			console.log("promise resolved and HTTP status is succesfull")
-			const json_response = await response.json()
-			console.log(json_response)
-		} else {
-			const json_response = await response.json()
+			// json_response still needs to get processed
 			console.log(json_response.text)
 		}
 	} catch (error) {
@@ -78,9 +57,9 @@ const fetchPlayer = async (name) => {
 
 // just for testing the stuff
 (async () => {
-	await fetchAirportByIcao("EFHK")
-	await fetchAirportByIcao("EFK")
-	await fetchData("plane")
-	await fetchData("cargo")
-	await fetchPlayer("kalle")
+	console.log(await fetchData("airport", "EFHK"))
+	console.log(await fetchData("player", "mika"))
+	console.log(await fetchTable("cargo"))
+	console.log(await fetchTable("plane"))
 })()
+
