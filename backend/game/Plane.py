@@ -31,3 +31,8 @@ class PlaneManager:
 
 			planes.append(self.planes[random.randint(0, len(self.planes))].__dict__)
 		return planes
+
+	def get_plane_by_id(self, plane_id:int) -> Plane:
+		for plane in self.planes:
+			if plane.id == plane_id:
+				return plane

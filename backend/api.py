@@ -5,44 +5,54 @@ import os
 
 import mysql.connector
 
+from backend.game.Contract import CargoManager, ContractManager
+from backend.game.Database import Database
+from backend.game.Plane import PlaneManager
+
 app = Flask(__name__)
 CORS(app)
 
-@app.route("/airport/<icao>")
-def get_airport(icao):
-	airport = get_airports(icao)
+# TODO airports by distance
+
+@app.route("/api/airport/<icao>")
+def get_airport(icao:str):
+	airport = get_airport(icao)
 	if airport is None:
 		return Response(response=json.dumps({"code": 404, "text": f"Airport {icao} not found"}), status=404,
 		                mimetype="application/json")
-	response = {
-		"ICAO": icao,
-		"Name": airport["name"],
-		"Municipality": airport["municipality"]
-	}
-	return Response(response=json.dumps(response), status=200, mimetype="application/json")
+	return Response(response=json.dumps(airport), status=200, mimetype="application/json")
 
-@app.route("/player/<name>")
-def get_player(name):
+@app.route("/api/player/<name>")
+def get_player(name: str):
 	player = get_player_data(name)
 	if player is None:
-		return Response(response=json.dumps({"code": 404, "text": f"Player {name}not found"}), status=404,
+		return Response(response=json.dumps({"code": 404, "text": f"Player {name} not found"}), status=404,
 	                    mimetype="application/json")
 	return Response(response=json.dumps(player), status=200, mimetype="application/json")
 
-@app.route("/api/plane")
-def get_plane():
-	data = get_static_data("plane")
-	if data is None:
+@app.route("/api/plane/<plane_id>")
+def get_plane(plane_id:int):
+	plane = planeManager.get_plane_by_id(int(plane_id))
+	if plane is None:
 		return Response(response=json.dumps({"code": 404, "text": f"Planes not found"}), status=404,
 		                mimetype="application/json")
-	return Response(response=json.dumps(data), status=200, mimetype="application/json")
-@app.route("/api/cargo")
-def get_cargo():
-	data = get_static_data("cargo")
-	if data is None:
-		return Response(response=json.dumps({"code": 404, "text": f"Cargo not found"}), status=404,
+	return Response(response=json.dumps(plane.__dict__), status=200, mimetype="application/json")
+
+@app.route("/api/contract")
+def get_contract():
+	contract = contractManager.generate_contract("heini")
+	if contract is None:
+		return Response(response=json.dumps({"code": 404, "text": f"Contract not found"}), status=404,
 		                mimetype="application/json")
-	return Response(response=json.dumps(data), status=200, mimetype="application/json")
+	return Response(response=json.dumps(contract.__dict__), status=200, mimetype="application/json")
+
+@app.route("/admin/api/players")
+def get_players():
+	players = get_players_from_db()
+	if players is None:
+		return Response(response=json.dumps({"code": 404, "text": f"Players not found"}), status=404,
+		                mimetype="application/json")
+	return Response(response=json.dumps(players), status=200, mimetype="application/json")
 
 @app.errorhandler(404)
 def page_not_found(errorcode):
@@ -65,6 +75,9 @@ connection = mysql.connector.connect(
     autocommit=True,
     buffered=True)
 cursor = connection.cursor(dictionary=True)
+db = Database()
+planeManager = PlaneManager(db)
+contractManager = ContractManager(db)
 
 def get_airports(icao: str)->dict:
 	fetch_airport_sql = f"""
@@ -91,6 +104,9 @@ def get_static_data(table)->dict:
 	"""
 	cursor.execute(fetch_data_sql)
 	return cursor.fetchall()
+
+def get_players_from_db():
+	return db.fetch_data("game")
 
 if __name__ == '__main__':
 	app.run(use_reloader=False,

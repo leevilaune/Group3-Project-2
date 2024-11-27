@@ -1,15 +1,17 @@
 import json
 import random
 
+from geopy.distance import distance
+
 from backend.game import Database
 
 
 class Cargo:
-	def __init__(self, json:dict):
-		self.id = int(json["id"])
-		self.delivery_value = int(json["delivery_value"])
-		self.weight = int(json["weight"])
-		self.description = json["description"]
+	def __init__(self, json_obj:dict):
+		self.id = int(json_obj["id"])
+		self.delivery_value = int(json_obj["delivery_value"])
+		self.weight = int(json_obj["weight"])
+		self.description = json_obj["description"]
 
 	def __str__(self):
 		return json.dumps(self.__dict__)
@@ -21,15 +23,14 @@ class CargoManager:
 		self.load_cargo()
 
 	def load_cargo(self):
-		cargo_data = self.database.fetch_data("plane")
+		cargo_data = self.database.fetch_data("cargo")
 		for cargo in cargo_data:
-			print(cargo)
-			self.cargo.append(Cargo(cargo_data))
+			self.cargo.append(Cargo(cargo))
 
 	def get_random_cargo(self, number_of_cargo: int) -> list:
 		cargo = []
 		for i in range(number_of_cargo):
-			cargo.append(self.cargo[random.randint(0, len(self.cargo))].__dict__)
+			cargo.append(self.cargo[random.randint(0, len(self.cargo)-1)])
 		return cargo
 
 class Contract:
@@ -47,5 +48,18 @@ class ContractManager:
 		self.database = db
 		self.cargo_manager = CargoManager(db)
 
-	def generate_contract(self) -> Contract:
-		return None
+	def generate_contract(self, username: str) -> Contract:
+		airports = self.database.get_airports_by_distance("large_airport",1000,username,5)
+		print(airports[0])
+		cargo = self.cargo_manager.get_random_cargo(3)
+		cargo_value = 0
+		cargo_dict = []
+		for carg in cargo:
+			cargo_dict.append(carg.__dict__)
+		for c in cargo:
+			print(c)
+			cargo_value += c.delivery_value
+		reward = cargo_value*0.2
+		distance_to_airport = airports[0]["distance"]
+
+		return Contract(cargo_dict,airports,reward,distance_to_airport)
