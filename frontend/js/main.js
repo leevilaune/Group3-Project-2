@@ -14,7 +14,7 @@ const fetchData = async (table, data) => {
 			"Content-Type": "application/json",
 		}
 	}
-	const url = "http://127.0.0.1:3000/"
+	const url = "http://127.0.0.1:3000/api/"
 	try {
 		const response = await fetch(url + table + "/" + data, fetchOptions)
 		if (response.ok) {
@@ -27,7 +27,7 @@ const fetchData = async (table, data) => {
 			console.log(json_response.text)
 		}
 	} catch (error) {
-		console.error("promise rejected: " + error.message)
+		console.error("promise rejected: " + error)
 	}
 }
 
@@ -51,15 +51,15 @@ const fetchTable = async (table) => {
 			console.log(json_response.text)
 		}
 	} catch (error) {
-		console.error("promise rejected: " + error.message)
+		console.error("promise rejected: " + error)
 	}
 }
 
 // just for testing the stuff
 (async () => {
 	console.log(await fetchData("airport", "EFHK"))
-	console.log(await fetchData("player", "mika"))
-	console.log(await fetchTable("cargo"))
-	console.log(await fetchTable("plane"))
+	console.log(await fetchData("player", "heini"))
+	console.log(await fetchData("plane", "13"))
+	console.log(await fetchTable("contract"))
 })()
 

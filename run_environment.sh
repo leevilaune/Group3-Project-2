@@ -4,7 +4,7 @@
 
 # Name of the tmux session
 SESSION_NAME="dev_environment"
-
+tmux kill-session -t $SESSION_NAME
 # Start a new tmux session with a specific name
 tmux new-session -d -s $SESSION_NAME
 
