@@ -1,3 +1,5 @@
+# setting off formatting for neovim for this file
+# fmt: off
 from pyexpat import native_encoding
 
 from flask import Flask, Response, request
@@ -18,7 +20,7 @@ CORS(app)
 
 @app.route("/api/airport/<icao>")
 def get_airport(icao:str):
-	airport = get_airport(icao)
+	airport = get_airports(icao)
 	if airport is None:
 		return Response(response=json.dumps({"code": 404, "text": f"Airport {icao} not found"}), status=404,
 		                mimetype="application/json")
@@ -128,3 +130,4 @@ if __name__ == '__main__':
             host='127.0.0.1',
             port=3000,
             debug=True)
+
