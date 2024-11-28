@@ -20,7 +20,7 @@ dialog.innerHTML = `
 
 // for creating the new player using dialog modal
 const form = dialog.querySelector("#player-form")
-form.addEventListener("submit", (evt) => {
+form.addEventListener("submit", async (evt) => {
 
 	// boilerplate prevent reload
 	evt.preventDefault()
@@ -31,11 +31,11 @@ form.addEventListener("submit", (evt) => {
 	if (formData.get("username") != "") {
 		const username = formData.get("username")
 		document.querySelector(".id-grid-name").innerText = username
+		console.log(await createAPICall("player/create", username))
 
 		// call the game loop here
 		// assign listeners and stuff to the point on the map
 
-		console.log(formData.get("username"))
 		dialog.innerHTML = ""
 		dialog.close()
 	} else {
@@ -43,7 +43,8 @@ form.addEventListener("submit", (evt) => {
 	}
 })
 
-const fetchData = async (table, data) => {
+// api_endpoint is the part after /api/
+const createAPICall = async (api_endpoint, data) => {
 	const fetchOptions = {
 		method: "GET",
 		headers: {
@@ -52,7 +53,7 @@ const fetchData = async (table, data) => {
 	}
 	const url = "http://127.0.0.1:3000/api/"
 	try {
-		const response = await fetch(url + table + "/" + data, fetchOptions)
+		const response = await fetch(url + api_endpoint + "/" + data, fetchOptions)
 		if (response.ok) {
 			console.log("promise resolved and HTTP status is succesful")
 			const json_response = await response.json()
@@ -93,9 +94,9 @@ const fetchTable = async (table) => {
 
 // just for testing the stuff
 (async () => {
-	console.log(await fetchData("airport", "EFHK"))
-	console.log(await fetchData("player", "heini"))
-	console.log(await fetchData("plane", "13"))
+	console.log(await createAPICall("airport", "EFHK"))
+	console.log(await createAPICall("player", "heini"))
+	console.log(await createAPICall("plane", "13"))
 	console.log(await fetchTable("contract"))
 })()
 
