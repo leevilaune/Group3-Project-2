@@ -4,7 +4,7 @@
 const key = ""
 
 // TODO:here we should probably get the starting position fromt he backend
-const map = L.map('map').setView([51.505, -0.09], 9);
+const map = L.map('map', { zoomControl: false, scrollWheelZoom: false }).setView([51.505, -0.09], 9);
 
 if (key) {
 	L.tileLayer(`https://api.maptiler.com/maps/toner-v2/{z}/{x}/{y}.png?key=${key}`, {
