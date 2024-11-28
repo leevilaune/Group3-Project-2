@@ -1,3 +1,5 @@
+from pyexpat import native_encoding
+
 from flask import Flask, Response, request
 from flask_cors import CORS
 import json
@@ -29,6 +31,12 @@ def get_player(name: str):
 		return Response(response=json.dumps({"code": 404, "text": f"Player {name} not found"}), status=404,
 	                    mimetype="application/json")
 	return Response(response=json.dumps(player), status=200, mimetype="application/json")
+
+@app.route("/api/player/create/<name>")
+def create_player(name: str):
+	add_player_to_db(name)
+	return Response(response=json.dumps({"text":"Player created"}), status=200, mimetype="application/json")
+
 
 @app.route("/api/plane/<plane_id>")
 def get_plane(plane_id:int):
@@ -107,6 +115,13 @@ def get_static_data(table)->dict:
 
 def get_players_from_db():
 	return db.fetch_data("game")
+
+def add_player_to_db(name):
+	db.add_data([{"co2_consumed": 0, "co2_budget": 20000,
+	              "currency": 100000, "location": "EFHK",
+	              "fuel_amount": 69420, "current_day": 0,
+	              "screen_name": name,
+	              }], "game")
 
 if __name__ == '__main__':
 	app.run(use_reloader=False,
