@@ -7,6 +7,42 @@
 //3 plane options
 //random encounter
 
+// get the dialog element
+const dialog = document.querySelector("dialog")
+dialog.showModal()
+
+// form for the dialog element
+dialog.innerHTML = `
+<form id = "player-form">
+	<input type="text" name="username" placeholder="input player name..."> 
+	<input type="submit" name="" value="Submit"> 
+</form>`
+
+// for creating the new player using dialog modal
+const form = dialog.querySelector("#player-form")
+form.addEventListener("submit", (evt) => {
+
+	// boilerplate prevent reload
+	evt.preventDefault()
+
+	// get all the data in FormData class object
+	const formData = new FormData(form)
+
+	if (formData.get("username") != "") {
+		const username = formData.get("username")
+		document.querySelector(".id-grid-name").innerText = username
+
+		// call the game loop here
+		// assign listeners and stuff to the point on the map
+
+		console.log(formData.get("username"))
+		dialog.innerHTML = ""
+		dialog.close()
+	} else {
+		console.log("There was no username")
+	}
+})
+
 const fetchData = async (table, data) => {
 	const fetchOptions = {
 		method: "GET",
