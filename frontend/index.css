@@ -11,6 +11,12 @@ body{
 .id-grid-currency { grid-area: id-currency;}
 .id-grid-temp { grid-area: id-temp;}
 .id-grid-img { grid-area: id-img;}
+dialog {
+    margin: auto;
+    outline: none;
+    border: 1px solid black;
+    border-radius: 0.25rem;
+}
 
 .id-card-class {
     display: grid;
