@@ -33,16 +33,34 @@ form.addEventListener("submit", async (evt) => {
 		console.log(await createAPICall("player/create", username))
 
 		// set coordinates to pan to (Helsinki)
+
 		let latlng = L.latLng(60.3179, 24.9496)
+		let markers = []
+
+		// add markers and attach data to them
+		for (let i = 0; i < 10; i++) {
+			let latlng = L.latLng(60.3179 + i * 0.01, 24.9496 + i * 0.01)
+			let marker = L.circleMarker(latlng)
+			// you can attach data to the marker,, you can put the data of the airport here and use it in the flyTo phase
+			marker.data = { location: `${i}` }
+			marker.addEventListener('click', () => {
+				console.log(marker.data)
+				marker.remove()
+			})
+			markers.push(marker)
+		}
+
+		let makerLayer = L.layerGroup(markers)
+		makerLayer.addTo(map)
 
 		// just testing creating clickable markers
-		let markerLayer = L.circleMarker(latlng)
-		markerLayer.data = { location: "EFHK" }
-		markerLayer.addTo(map)
-		markerLayer.addEventListener('click', () => {
-			console.log(markerLayer.data)
-			markerLayer.remove()
-		})
+		//let markerLayer = L.circleMarker(latlng)
+		//markerLayer.data = { location: "EFHK" }
+		//markerLayer.addTo(map)
+		//markerLayer.addEventListener('click', () => {
+		//	console.log(markerLayer.data)
+		//	markerLayer.remove()
+		//})
 
 		//setTimeout(, 1000)
 
