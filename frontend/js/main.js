@@ -30,8 +30,19 @@ form.addEventListener("submit", async (evt) => {
 
 	if (formData.get("username") != "") {
 		const username = formData.get("username")
-		document.querySelector(".id-grid-name").innerText = username
 		console.log(await createAPICall("player/create", username))
+
+		// set coordinates to pan to (Helsinki)
+		const latlng = L.latLng(60.3179, 24.9496)
+
+		// pan to coordinates
+		map.panTo(latlng)
+
+		const playerData = await createAPICall("player", username)
+
+		// set player data to the player card element
+		document.querySelector(".id-grid-name").innerText = username
+		document.querySelector(".id-grid-currency").innerText = playerData.currency
 
 		// call the game loop here
 		// assign listeners and stuff to the point on the map
@@ -39,6 +50,12 @@ form.addEventListener("submit", async (evt) => {
 		dialog.innerHTML = ""
 		dialog.close()
 	} else {
+		// check if the error paragraph already exists
+		if (!dialog.querySelector("p")) {
+			const errorMessage = document.createElement("p")
+			errorMessage.innerText = "Please insert a valid name."
+			dialog.appendChild(errorMessage)
+		}
 		console.log("There was no username")
 	}
 })
