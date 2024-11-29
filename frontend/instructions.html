@@ -8,14 +8,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="stylesheet" href="instructions.css">
-    <script src="js/main.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
+          integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
 </head>
 <body>
 <div class="container">
 
     <div class="block">
         <h1>Instructions</h1>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquid, dicta esse ex fugit laboriosam
+        <p id="instructions-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquid, dicta esse ex fugit
+            laboriosam
             laudantium minima mollitia, neque officia repellendus tempore, voluptas? Dignissimos, ipsam nam
             similique sunt tempora tempore vitae?. Lorem ipsum dolor sit amet, consectetur adipisicing elit.
             Accusantium aliquam aperiam at, consectetur error et facere itaque iure modi nam nisi non numquam odio
@@ -25,22 +28,77 @@
             sit amet, consectetur adipisicing elit. Accusamus accusantium aperiam assumenda autem dolor dolores
             dolorum facere laudantium minus molestias qui quis quisquam repellendus sed soluta temporibus
             voluptatem, voluptates voluptatum.</p>
+        <button class="scroll-button"><i class="fa-solid fa-chevron-down"></i></button>
+        <button class="scroll-up"><i class="fa-solid fa-chevron-up"></i></button>
     </div>
     <div class="block">
         <h1>Story</h1>
-        <p>The year is 2040. Technological development has radically changed the aviation industry, and air cargo
-            transport has become an important part of the international economy. You are a young and ambitious pilot who
-            has founded your own transport company. Global companies and private customers trust you to transport urgent
+        <p id="story-text">The year is 2040. Technological development has radically changed the aviation industry,
+            and
+            air cargo
+            transport has become an important part of the international economy. You are a young and ambitious pilot
+            who
+            has founded your own transport company. Global companies and private customers trust you to transport
+            urgent
             and valuable cargo, because your skills and efficiency are unmatched.
-            However, the world has changed. Climate conditions are more unpredictable, and airports compete with each
-            other for favorable routes and airspace. Every journey is risky, and you are responsible for ensuring that
+            However, the world has changed. Climate conditions are more unpredictable, and airports compete with
+            each
+            other for favorable routes and airspace. Every journey is risky, and you are responsible for ensuring
+            that
             important cargo shipments reach their destination safely and on time.
             In the game, you are given different missions and cargo packages to transport. Every shipment can be
             critical: sometimes you're transporting a rare medicine, other times a hugely valuable piece of art or
             emergency aid packages to natural disaster areas.</p>
+        <button class="scroll-button"><i class="fa-solid fa-chevron-down"></i></button>
+        <button class="scroll-up"><i class="fa-solid fa-chevron-up"></i></button>
+
+
     </div>
 
 </div>
 </body>
+<script>
+    const scrollDownButton = document.getElementsByClassName("scroll-button")
+    const scrollUpButton = document.getElementsByClassName("scroll-up")
+    const instructionsText = document.querySelector("#instructions-text")
+    const storyText = document.querySelector("#story-text")
+
+    for (let i = 0; i < scrollUpButton.length; i++) {
+        if (scrollUpButton[i] === scrollUpButton[0]) {
+            scrollUpButton[i].onclick = function () {
+                instructionsText.scrollBy({
+                    top: -80,
+                    behavior: "smooth"
+                })
+            }
+        } else {
+            scrollUpButton[i].onclick = function () {
+                storyText.scrollBy({
+                    top: -80,
+                    behavior: "smooth"
+                })
+            }
+        }
+    }
+
+    for (let i = 0; i < scrollDownButton.length; i++) {
+        if (scrollDownButton[i] === scrollDownButton[0]) {
+            scrollDownButton[i].onclick = function () {
+                instructionsText.scrollBy({
+                    top: 80,
+                    behavior: "smooth"
+                })
+            }
+        } else {
+            scrollDownButton[i].onclick = function () {
+                storyText.scrollBy({
+                    top: 80,
+                    behavior: "smooth"
+                })
+            }
+        }
+    }
+
+</script>
 
 </html>

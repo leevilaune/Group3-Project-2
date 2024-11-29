@@ -4,7 +4,7 @@ body{
 
 .container{
     display:flex;
-    width: 50%;
+    width: 55%;
     height: 100vh;
     margin: auto;
     text-align: center;
@@ -13,12 +13,45 @@ body{
 
 .block{
     padding: 10px;
+    height: 50%
+
 }
 
 .block p{
     border: 1px solid black;
     border-radius: 5px;
-    padding: 5px;
-    height: 10%;
+    padding: 10px;
+    height: 60%;
     overflow-y: auto;
+
+}
+
+/* width */
+p::-webkit-scrollbar {
+  width: 3px;
+}
+
+/* Track */
+p::-webkit-scrollbar-track {
+  background: rgba(241, 241, 241, 0);
+}
+
+/* Handle */
+p::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.75);
+}
+
+.scroll-button, .scroll-up{
+    background: none;
+    border: none;
+    position: relative;
+}
+
+.scroll-button, .scroll-up:hover{
+    cursor: pointer;
+
+}
+
+span{
+    position: static;
 }
