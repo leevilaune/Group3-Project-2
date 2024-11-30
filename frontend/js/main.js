@@ -33,7 +33,37 @@ form.addEventListener("submit", async (evt) => {
 		console.log(await createAPICall("player/create", username))
 
 		// set coordinates to pan to (Helsinki)
-		const latlng = L.latLng(60.3179, 24.9496)
+
+		let latlng = L.latLng(60.3179, 24.9496)
+		let markers = []
+
+		// add markers and attach data to them
+		for (let i = 0; i < 10; i++) {
+			let latlng = L.latLng(60.3179 + i * 0.01, 24.9496 + i * 0.01)
+			let marker = L.circleMarker(latlng)
+			// you can attach data to the marker,, you can put the data of the airport here and use it in the flyTo phase
+			marker.data = { location: `${i}` }
+			marker.addEventListener('click', () => {
+				console.log(marker.data)
+				marker.remove()
+			})
+			markers.push(marker)
+		}
+
+		let makerLayer = L.layerGroup(markers)
+		makerLayer.addTo(map)
+
+		// just testing creating clickable markers
+		//let markerLayer = L.circleMarker(latlng)
+		//markerLayer.data = { location: "EFHK" }
+		//markerLayer.addTo(map)
+		//markerLayer.addEventListener('click', () => {
+		//	console.log(markerLayer.data)
+		//	markerLayer.remove()
+		//})
+
+		//setTimeout(, 1000)
+
 
 		// pan to coordinates
 		map.panTo(latlng)
@@ -44,11 +74,12 @@ form.addEventListener("submit", async (evt) => {
 		document.querySelector(".id-grid-name").innerText = username
 		document.querySelector(".id-grid-currency").innerText = playerData.currency
 
-		// call the game loop here
-		// assign listeners and stuff to the point on the map
-
 		dialog.innerHTML = ""
 		dialog.close()
+
+		// go to the plane selection screen
+		await getPlanes()
+
 	} else {
 		// check if the error paragraph already exists
 		if (!dialog.querySelector("p")) {
@@ -59,6 +90,95 @@ form.addEventListener("submit", async (evt) => {
 		console.log("There was no username")
 	}
 })
+
+async function selectPlane() {
+	console.log(this)
+	console.log(this.data.id)
+	document.querySelector(".id-grid-temp").innerText = this.data.type
+	const listItems = this.parentNode.querySelectorAll("li")
+	listItems.forEach((item) => item.removeEventListener('click', selectPlane))
+
+	dialog.close()
+	dialog.innerText = ""
+
+	// select contracts
+	// this opens the contract selection modal
+	// don't know if there is better way to do this than to daisychain async functions
+	await getContracts()
+}
+
+// list of planes
+const getPlanes = async () => {
+	const itemList = `
+	<p>Select a plane</p>
+	<ul style="list-style: none;" id="item-list">
+	</ul>
+	`
+
+	dialog.innerHTML = itemList
+
+	// this is currectly just hard set to select specific planes
+	const planeList = dialog.querySelector("#item-list")
+	for (let i = 1; i <= 3; i++) {
+		const plane = document.createElement("li")
+		plane.data = await createAPICall("plane", i * 2)
+		console.log(plane.data)
+		plane.innerText = plane.data.type
+		plane.addEventListener('click', selectPlane)
+		planeList.appendChild(plane)
+	}
+
+	dialog.showModal()
+}
+
+async function selectContract() {
+	console.log(this)
+	console.log(this.data.id)
+	const listItems = this.parentNode.querySelectorAll("li")
+	listItems.forEach((item) => item.removeEventListener('click', selectContract))
+
+	dialog.close()
+	dialog.innerText = ""
+
+
+	// don't know if there is better way to do this than to daisychain async functions
+	// this starts the mainloop
+	await setupGame()
+}
+
+const getContracts = async () => {
+	const itemList = `
+	<p>Select a contract</p>
+	<ul style="list-style: none;" id="item-list">
+	</ul>
+	`
+
+	dialog.innerHTML = itemList
+
+	// this is currectly just hard set to select specific planes
+	const contractList = dialog.querySelector("#item-list")
+	for (let i = 1; i <= 3; i++) {
+		const contracts = await fetchTable("contract")
+		console.log(contracts)
+		contracts.cargo.forEach(async (contr) => {
+			const contract = document.createElement("li")
+			contract.data = contr
+			console.log(contract.data)
+			contract.innerText = contract.data.description
+			contract.addEventListener('click', selectContract)
+			contractList.appendChild(contract)
+		})
+	}
+
+	dialog.showModal()
+}
+
+const setupGame = async () => {
+	console.log("game is running")
+
+	// draw points on the map
+	// update values on the screen
+}
 
 // api_endpoint is the part after /api/
 const createAPICall = async (api_endpoint, data) => {

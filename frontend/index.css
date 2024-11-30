@@ -12,6 +12,18 @@ body{
 .id-grid-temp { grid-area: id-temp;}
 .id-grid-img { grid-area: id-img;}
 
+dialog {
+    margin: auto;
+    outline: none;
+    border: 1px solid black;
+    border-radius: 0.25rem;
+}
+
+dialog li:hover {
+    background: green;
+    cursor: pointer;
+}
+
 .id-card-class {
     display: grid;
     grid-template-areas:
