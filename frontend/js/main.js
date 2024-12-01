@@ -193,10 +193,12 @@ const getContracts = async () => {
 			// Append tooltipin contract itemiin
 			contract.appendChild(tooltip)
 
+			// declare redMarker here so it can be accessed in both mouseover and mouseout event listeners
+			let redMarker;
+
 			// näyttää contract info kun hiiri hoveraa
 			contract.addEventListener('mouseover', () => {
-				tooltip.innerHTML = `
-					Destination: ${randomAirport.airport}<br>
+				tooltip.innerHTML = `Destination: ${randomAirport.airport}<br>
 					Country: ${randomAirport.country}<br>
 					Reward: $${contract.data.delivery_value}<br>
 					Distance: ${distanceInKilometers} Kilometers
@@ -212,8 +214,9 @@ const getContracts = async () => {
 					radius: 10
 				}).addTo(map)
 			})
+
 			contract.addEventListener('mouseout', () => {
-				tooltip.style.display = 'none' // piilotta tooltipin ku hiiri ei oo enää päällä
+				tooltip.style.display = 'none' // piilottaa tooltipin ku hiiri ei oo enää päällä
 				if(redMarker) {
 					map.removeLayer(redMarker)
 				}
