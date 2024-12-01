@@ -164,7 +164,7 @@ const getContracts = async () => {
 		const contracts = await fetchTable("contract")
 		console.log(contracts)
 
-		contracts.cargo.forEach(async (contr) => {
+		for (const contr of contracts.cargo) {
 			const contract = document.createElement("li")
 			contract.data = contr
 			console.log(contract.data)
@@ -224,7 +224,7 @@ const getContracts = async () => {
 
 			contract.addEventListener('click', selectContract)
 			contractList.appendChild(contract)
-		})
+		}
 	}
 
 	dialog.showModal()
