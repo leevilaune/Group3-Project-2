@@ -155,16 +155,70 @@ const getContracts = async () => {
 
 	dialog.innerHTML = itemList
 
-	// this is currectly just hard set to select specific planes
 	const contractList = dialog.querySelector("#item-list")
+
+	// testi pelaajan location
+	const playerLatLng = L.latLng(60.3179, 24.9496)  // esim helsinki koordinaatit
+
 	for (let i = 1; i <= 3; i++) {
 		const contracts = await fetchTable("contract")
 		console.log(contracts)
+
 		contracts.cargo.forEach(async (contr) => {
 			const contract = document.createElement("li")
 			contract.data = contr
 			console.log(contract.data)
 			contract.innerText = contract.data.description
+
+			// valitsee rando lentokentän contracts.airportista
+			const randomAirport = contracts.airport[Math.floor(Math.random() * contracts.airport.length)]
+			console.log('Selected random airport:', randomAirport)
+
+			// ottaa latitude ja longitude valitusta lentokentästä
+			const airportLatLng = L.latLng(randomAirport.latitude_deg, randomAirport.longitude_deg)
+
+			// laskee etäisyyden pelaajan ja valitun lento kentän välillä
+			const distanceInMeters = playerLatLng.distanceTo(airportLatLng)
+			const distanceInKilometers = (distanceInMeters / 1000).toFixed(2)
+
+			// luo tooltipin näyttääkseen contract info on hover
+			const tooltip = document.createElement('div')
+			tooltip.style.position = 'absolute'
+			tooltip.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'
+			tooltip.style.color = 'white'
+			tooltip.style.padding = '5px'
+			tooltip.style.borderRadius = '5px'
+			tooltip.style.display = 'none'
+
+			// Append tooltipin contract itemiin
+			contract.appendChild(tooltip)
+
+			// näyttää contract info kun hiiri hoveraa
+			contract.addEventListener('mouseover', () => {
+				tooltip.innerHTML = `
+					Destination: ${randomAirport.airport}<br>
+					Country: ${randomAirport.country}<br>
+					Reward: $${contract.data.delivery_value}<br>
+					Distance: ${distanceInKilometers} Kilometers
+				`
+				tooltip.style.display = 'block'
+
+				map.panTo(airportLatLng)
+				// lisää punasen pallon contract lentokentä päälle kun hoveraa contracteja
+				redMarker = L.circleMarker(airportLatLng, {
+					color: `red`,
+					fillColor: `red`,
+					fillOpacity: 0.6,
+					radius: 10
+				}).addTo(map)
+			})
+			contract.addEventListener('mouseout', () => {
+				tooltip.style.display = 'none' // piilotta tooltipin ku hiiri ei oo enää päällä
+				if(redMarker) {
+					map.removeLayer(redMarker)
+				}
+			})
+
 			contract.addEventListener('click', selectContract)
 			contractList.appendChild(contract)
 		})
