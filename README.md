@@ -69,7 +69,7 @@ This API provides various endpoints to interact with airport, player, plane, and
 **Parameters:**  
 - `name` (string): Name of the player to be updated.  
 - Request Body: JSON object with player details.
-## Notes
+**Notes**
 - Player details are based on following Database Schema payload doesnt need to have
 all fields, just the ones you want to update
 ```
