@@ -38,27 +38,6 @@ form.addEventListener("submit", async (evt) => {
 
 		// set coordinates to pan to (Helsinki)
 
-		let latlng = L.latLng(60.3179, 24.9496)
-		let markers = []
-
-		// add markers and attach data to them
-		const airportsClose = await createAPICall("airport/bydistance/1000/10", playerData.screen_name)
-		for (const airport of airportsClose) {
-			console.log(airport)
-			let latlng = L.latLng(airport.latitude_deg, airport.longitude_deg)
-			let marker = L.circleMarker(latlng)
-			// you can attach data to the marker,, you can put the data of the airport here and use it in the flyTo phase
-			marker.data = { airport }
-			// event listener for clicking the markers
-			marker.addEventListener('click', flyTo)
-			markers.push(marker)
-		}
-
-		markerLayer = L.layerGroup(markers)
-		markerLayer.addTo(map)
-
-		// pan to coordinates
-		map.panTo(latlng)
 
 
 		// set player data to the player card element
@@ -238,6 +217,27 @@ const getContracts = async () => {
 const setupGame = async () => {
 	console.log("game is running")
 
+	let latlng = L.latLng(60.3179, 24.9496)
+	let markers = []
+
+	// add markers and attach data to them
+	const airportsClose = await createAPICall("airport/bydistance/1000/10", playerData.screen_name)
+	for (const airport of airportsClose) {
+		console.log(airport)
+		let latlng = L.latLng(airport.latitude_deg, airport.longitude_deg)
+		let marker = L.circleMarker(latlng)
+		// you can attach data to the marker,, you can put the data of the airport here and use it in the flyTo phase
+		marker.data = { airport }
+		// event listener for clicking the markers
+		marker.addEventListener('click', flyTo)
+		markers.push(marker)
+	}
+
+	markerLayer = L.layerGroup(markers)
+	markerLayer.addTo(map)
+
+	// pan to coordinates
+	map.panTo(latlng)
 	// draw points on the map
 	// update values on the screen
 }
