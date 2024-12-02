@@ -6,6 +6,8 @@
 //list of possible contracts
 //3 plane options
 //random encounter
+//
+let playerData
 
 // get the dialog element
 const dialog = document.querySelector("dialog")
@@ -38,13 +40,17 @@ form.addEventListener("submit", async (evt) => {
 		let markers = []
 
 		// add markers and attach data to them
-		for (let i = 0; i < 10; i++) {
-			let latlng = L.latLng(60.3179 + i * 0.01, 24.9496 + i * 0.01)
+		const airportsClose = await createAPICall("airport/bydistance/1000/10", username)
+		for (const airport of airportsClose) {
+			console.log(airport)
+			let latlng = L.latLng(airport.latitude_deg, airport.longitude_deg)
 			let marker = L.circleMarker(latlng)
 			// you can attach data to the marker,, you can put the data of the airport here and use it in the flyTo phase
-			marker.data = { location: `${i}` }
+			marker.data = { airport }
+			// event listener for clicking the markers
 			marker.addEventListener('click', () => {
 				console.log(marker.data)
+				map.panTo(L.latLng(marker.data.airport.latitude_deg, marker.data.airport.longitude_deg))
 				marker.remove()
 			})
 			markers.push(marker)
@@ -68,7 +74,7 @@ form.addEventListener("submit", async (evt) => {
 		// pan to coordinates
 		map.panTo(latlng)
 
-		const playerData = await createAPICall("player", username)
+		playerData = await createAPICall("player", username)
 
 		// set player data to the player card element
 		document.querySelector(".id-grid-name").innerText = username
@@ -161,7 +167,7 @@ const getContracts = async () => {
 	const playerLatLng = L.latLng(60.3179, 24.9496)  // esim helsinki koordinaatit
 
 	for (let i = 1; i <= 3; i++) {
-		const contracts = await fetchTable("contract")
+		const contracts = await createAPICall("contract", playerData.screen_name)
 		console.log(contracts)
 
 		for (const contr of contracts.cargo) {
@@ -217,7 +223,7 @@ const getContracts = async () => {
 
 			contract.addEventListener('mouseout', () => {
 				tooltip.style.display = 'none' // piilottaa tooltipin ku hiiri ei oo enää päällä
-				if(redMarker) {
+				if (redMarker) {
 					map.removeLayer(redMarker)
 				}
 			})
