@@ -8,6 +8,7 @@
 //random encounter
 //
 let playerData
+let markerLayer
 
 // get the dialog element
 const dialog = document.querySelector("dialog")
@@ -33,6 +34,7 @@ form.addEventListener("submit", async (evt) => {
 	if (formData.get("username") != "") {
 		const username = formData.get("username")
 		console.log(await createAPICall("player/create", username))
+		playerData = await createAPICall("player", username)
 
 		// set coordinates to pan to (Helsinki)
 
@@ -40,7 +42,7 @@ form.addEventListener("submit", async (evt) => {
 		let markers = []
 
 		// add markers and attach data to them
-		const airportsClose = await createAPICall("airport/bydistance/1000/10", username)
+		const airportsClose = await createAPICall("airport/bydistance/1000/10", playerData.screen_name)
 		for (const airport of airportsClose) {
 			console.log(airport)
 			let latlng = L.latLng(airport.latitude_deg, airport.longitude_deg)
@@ -48,16 +50,12 @@ form.addEventListener("submit", async (evt) => {
 			// you can attach data to the marker,, you can put the data of the airport here and use it in the flyTo phase
 			marker.data = { airport }
 			// event listener for clicking the markers
-			marker.addEventListener('click', () => {
-				console.log(marker.data)
-				map.panTo(L.latLng(marker.data.airport.latitude_deg, marker.data.airport.longitude_deg))
-				marker.remove()
-			})
+			marker.addEventListener('click', flyTo)
 			markers.push(marker)
 		}
 
-		let makerLayer = L.layerGroup(markers)
-		makerLayer.addTo(map)
+		markerLayer = L.layerGroup(markers)
+		markerLayer.addTo(map)
 
 		// just testing creating clickable markers
 		//let markerLayer = L.circleMarker(latlng)
@@ -74,7 +72,6 @@ form.addEventListener("submit", async (evt) => {
 		// pan to coordinates
 		map.panTo(latlng)
 
-		playerData = await createAPICall("player", username)
 
 		// set player data to the player card element
 		document.querySelector(".id-grid-name").innerText = username
@@ -96,6 +93,17 @@ form.addEventListener("submit", async (evt) => {
 		console.log("There was no username")
 	}
 })
+
+function flyTo() {
+	console.log(this.data)
+	map.panTo(L.latLng(this.data.airport.latitude_deg, this.data.airport.longitude_deg))
+	// check if this airport is the one in the contract 
+	// remove markers somehow
+	// generate new markers for close airports (put the code that generated it earlier in function probably)
+	// update player data
+	// send data to backend when we hit the contract probably
+	this.remove()
+}
 
 async function selectPlane() {
 	console.log(this)
@@ -219,6 +227,9 @@ const getContracts = async () => {
 					fillOpacity: 0.6,
 					radius: 10
 				}).addTo(map)
+				redMarker.data = { airport: null }
+				redMarker.data.airport = randomAirport
+				redMarker.addEventListener('click', flyTo)
 			})
 
 			contract.addEventListener('mouseout', () => {
