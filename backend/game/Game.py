@@ -43,12 +43,11 @@ class PlayerManager:
 		"""
 
 	def player_exists(self, screen_name: str) -> bool:
-		return self.get_player(screen_name) is None
+		return self.db.get_player_data(screen_name) is not None
 
 	def get_player(self, screen_name:str) -> Player:
 		for p in self.players:
 			if p.screen_name == screen_name:
 				return p
-
 	def update_player(self, screen_name:str, json:dict):
 		self.get_player(screen_name).update(json)
