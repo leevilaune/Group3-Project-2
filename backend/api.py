@@ -139,12 +139,18 @@ def get_players_from_db():
 	return db.fetch_data("game")
 
 def add_player_to_db(name):
+
 	if pm.player_exists(name) is False:
-		db.add_data([{"co2_consumed": 0, "co2_budget": 20000,
-		              "currency": 100000, "location": "EFHK",
-		              "fuel_amount": 69420, "current_day": 0,
-		              "screen_name": name,
-		              }], "game")
+		add_data = {"co2_consumed": 0,
+		            "co2_budget": 20000,
+		            "currency": 100000,
+		            "location": "EFHK",
+		            "fuel_amount": 69420,
+		            "current_day": 0,
+		            "screen_name": name}
+		print(add_data)
+		db.add_data([add_data], "game")
+		pm.login(name)
 	else:
 		pm.login(name)
 
