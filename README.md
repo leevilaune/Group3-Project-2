@@ -72,19 +72,18 @@ This API provides various endpoints to interact with airport, player, plane, and
 ## Notes
 - Player details are based on following Database Schema payload doesnt need to have
 all fields, just the ones you want to update
-+--------------+-------------+------+-----+---------+----------------+
-| Field        | Type        | Null | Key | Default | Extra          |
-+--------------+-------------+------+-----+---------+----------------+
-| id           | int(11)     | NO   | PRI | NULL    | auto_increment |
-| co2_consumed | int(8)      | YES  |     | NULL    |                |
-| co2_budget   | int(8)      | YES  |     | NULL    |                |
-| location     | varchar(10) | YES  | MUL | NULL    |                |
-| screen_name  | varchar(40) | YES  |     | NULL    |                |
-| currency     | int(32)     | YES  |     | NULL    |                |
-| fuel_amount  | int(8)      | YES  |     | NULL    |                |
-| rented_plane | int(8)      | YES  | MUL | NULL    |                |
-| current_day  | float       | YES  |     | NULL    |                |
-+--------------+-------------+------+-----+---------+----------------+
+| Field        | Type        |
+|--------------|-------------|
+| id           | int(11)     |
+| co2_consumed | int(8)      |
+| co2_budget   | int(8)      |
+| location     | varchar(10) |
+| screen_name  | varchar(40) |
+| currency     | int(32)     |
+| fuel_amount  | int(8)      |
+| rented_plane | int(8)      |
+| current_day  | float       |
+
 
 
 **Response:**
