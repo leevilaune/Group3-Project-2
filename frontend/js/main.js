@@ -57,18 +57,6 @@ form.addEventListener("submit", async (evt) => {
 		markerLayer = L.layerGroup(markers)
 		markerLayer.addTo(map)
 
-		// just testing creating clickable markers
-		//let markerLayer = L.circleMarker(latlng)
-		//markerLayer.data = { location: "EFHK" }
-		//markerLayer.addTo(map)
-		//markerLayer.addEventListener('click', () => {
-		//	console.log(markerLayer.data)
-		//	markerLayer.remove()
-		//})
-
-		//setTimeout(, 1000)
-
-
 		// pan to coordinates
 		map.panTo(latlng)
 
