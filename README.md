@@ -68,7 +68,24 @@ This API provides various endpoints to interact with airport, player, plane, and
 **Description:** Update the details of an existing player.  
 **Parameters:**  
 - `name` (string): Name of the player to be updated.  
-- Request Body: JSON object with player details.  
+- Request Body: JSON object with player details.
+## Notes
+- Player details are based on following Database Schema payload doesnt need to have
+all fields, just the ones you want to update
++--------------+-------------+------+-----+---------+----------------+
+| Field        | Type        | Null | Key | Default | Extra          |
++--------------+-------------+------+-----+---------+----------------+
+| id           | int(11)     | NO   | PRI | NULL    | auto_increment |
+| co2_consumed | int(8)      | YES  |     | NULL    |                |
+| co2_budget   | int(8)      | YES  |     | NULL    |                |
+| location     | varchar(10) | YES  | MUL | NULL    |                |
+| screen_name  | varchar(40) | YES  |     | NULL    |                |
+| currency     | int(32)     | YES  |     | NULL    |                |
+| fuel_amount  | int(8)      | YES  |     | NULL    |                |
+| rented_plane | int(8)      | YES  | MUL | NULL    |                |
+| current_day  | float       | YES  |     | NULL    |                |
++--------------+-------------+------+-----+---------+----------------+
+
 
 **Response:**
 - `200 OK`: Player successfully updated.  
