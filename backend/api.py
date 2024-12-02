@@ -11,12 +11,20 @@ import mysql.connector
 
 from backend.game.Contract import CargoManager, ContractManager
 from backend.game.Database import Database
+from backend.game.Game import PlayerManager
 from backend.game.Plane import PlaneManager
 
 app = Flask(__name__)
 CORS(app)
 
 # TODO airports by distance
+@app.route('/api/airport/bydistance/<distance>/<amount>/<name>', methods=['GET'])
+def get_airport_by_distance(amount, distance,name):
+	airports = db_airports_by_distance(amount,distance,name)
+	if len(airports) == 0:
+		return Response(response=json.dumps({"code": 404, "text": f"No airports found near"}), status=404,
+		                mimetype="application/json")
+	return Response(response=json.dumps(airports), status=200, mimetype="application/json")
 
 @app.route("/api/airport/<icao>")
 def get_airport(icao:str):
@@ -48,9 +56,9 @@ def get_plane(plane_id:int):
 		                mimetype="application/json")
 	return Response(response=json.dumps(plane.__dict__), status=200, mimetype="application/json")
 
-@app.route("/api/contract")
-def get_contract():
-	contract = contractManager.generate_contract("heini")
+@app.route("/api/contract/<name>")
+def get_contract(name):
+	contract = contractManager.generate_contract(name)
 	if contract is None:
 		return Response(response=json.dumps({"code": 404, "text": f"Contract not found"}), status=404,
 		                mimetype="application/json")
@@ -89,6 +97,8 @@ db = Database()
 planeManager = PlaneManager(db)
 contractManager = ContractManager(db)
 
+pm = PlayerManager(db)
+pm.login("heini")
 def get_airports(icao: str)->dict:
 	fetch_airport_sql = f"""
 	SELECT name, municipality
@@ -125,6 +135,9 @@ def add_player_to_db(name):
 	              "screen_name": name,
 	              }], "game")
 
+def db_airports_by_distance(amount:int, distance:int,screen_name:str) -> list:
+	print(get_player_data(screen_name))
+	return db.get_airports_by_distance("large_airport", distance,screen_name,amount)
 if __name__ == '__main__':
 	app.run(use_reloader=False,
             host='127.0.0.1',

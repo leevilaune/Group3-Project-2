@@ -151,7 +151,7 @@ class Database:
 		"""
 
 		current_airport = self.get_current_airport(user)
-
+		distance *= 10
 		# some sql voodoo to get all airports in a radius
 		sql_get_airports_in_distance = f"""
             SELECT country.name as country, airport.name as airport, ident, latitude_deg, longitude_deg,
@@ -410,3 +410,12 @@ class Database:
 		if len(self.cursor.fetchall()) > 0:
 			return True
 		return False
+
+	def get_player_data(self,name: str)->dict:
+		fetch_player_sql = f"""
+            SELECT *
+            FROM game
+            WHERE screen_name = '{name}'
+        """
+		self.cursor.execute(fetch_player_sql)
+		return self.cursor.fetchone()
