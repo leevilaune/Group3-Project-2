@@ -72,7 +72,8 @@ This API provides various endpoints to interact with airport, player, plane, and
 ## Notes
 - Player details are based on following Database Schema payload doesnt need to have
 all fields, just the ones you want to update
-```| Field        | Type        |
+```
+| Field        | Type        |
 |--------------|-------------|
 | id           | int(11)     |
 | co2_consumed | int(8)      |
