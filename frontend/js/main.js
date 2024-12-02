@@ -292,11 +292,3 @@ const fetchTable = async (table) => {
 	}
 }
 
-// just for testing the stuff
-(async () => {
-	console.log(await createAPICall("airport", "EFHK"))
-	console.log(await createAPICall("player", "heini"))
-	console.log(await createAPICall("plane", "13"))
-	console.log(await fetchTable("contract"))
-})()
-
