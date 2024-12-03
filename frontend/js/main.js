@@ -69,12 +69,13 @@ async function flyTo() {
 	// remove markers somehow
 	// generate new markers for close airports (put the code that generated it earlier in function probably)
 	// update player data
-	await createAPIPostCall("player/update", playerData.screen_name, { location: this.data.airport.ident })
+	playerData.location = this.data.airport.ident
+	await createAPIPostCall("player/update", playerData.screen_name, playerData)
 
 	await updateMarkers()
 	// send data to backend when we hit the contract probably
 	// remove the marker from the layer
-	markerLayer.removeLayer(this)
+	//markerLayer.removeLayer(this)
 }
 
 async function selectPlane() {
@@ -199,7 +200,7 @@ const getContracts = async () => {
 			redMarker = L.circleMarker(airportLatLng, {
 				color: `red`,
 				fillColor: `red`,
-				fillOpacity: 0.6,
+				//fillOpacity: 0.6,
 				radius: 10
 			})
 			markerLayer.addLayer(redMarker)
@@ -225,18 +226,26 @@ const getContracts = async () => {
 
 const updateMarkers = async () => {
 	// add markers and attach data to them
+	console.log(playerData)
 	const airportsClose = await createAPICall("airport/bydistance/1000/10", playerData.screen_name)
 	console.log(airportsClose)
 	for (const airport of airportsClose) {
 		let draw = true
 		// go through all the layers(markers) and check if it already exists
 		markerLayer.eachLayer((layer) => {
+			if (layer.data.airport.ident == playerData.location) {
+				layer.setStyle({ fillColor: "green", color: "green" })
+			}
 			if (layer.data.airport.ident == airport.ident) {
 				draw = false
-				console.log("airport already drawn")
-				return
+				if (layer.data.airport.ident == playerData.contract.airport.ident) {
+				} else {
+					layer.setStyle({ fillColor: "#3388ff", color: "#3388ff" })
+					return
+				}
 			}
 		})
+		// draw markers that are not already drawn
 		if ((airport.ident != playerData.contract.airport.ident) && draw) {
 			let latlng = L.latLng(airport.latitude_deg, airport.longitude_deg)
 			let marker = L.circleMarker(latlng)
