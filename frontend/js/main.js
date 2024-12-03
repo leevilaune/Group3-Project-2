@@ -61,13 +61,15 @@ form.addEventListener("submit", async (evt) => {
 	}
 })
 
-function flyTo() {
+async function flyTo() {
 	console.log(this.data)
 	map.panTo(L.latLng(this.data.airport.latitude_deg, this.data.airport.longitude_deg))
 	// check if this airport is the one in the contract 
 	// remove markers somehow
 	// generate new markers for close airports (put the code that generated it earlier in function probably)
 	// update player data
+	await createAPIPostCall("player/update", playerData.screen_name, { location: this.data.airport.ident })
+
 	// send data to backend when we hit the contract probably
 	this.remove()
 }
@@ -113,8 +115,10 @@ const getPlanes = async () => {
 }
 
 async function selectContract() {
-	console.log(this)
-	console.log(this.data.id)
+	playerData.contract = this.data
+
+	console.log(playerData.contract)
+
 	const listItems = this.parentNode.querySelectorAll("li")
 	listItems.forEach((item) => item.removeEventListener('click', selectContract))
 
@@ -141,74 +145,72 @@ const getContracts = async () => {
 	// testi pelaajan location
 	const playerLatLng = L.latLng(60.3179, 24.9496)  // esim helsinki koordinaatit
 
-	for (let i = 1; i <= 3; i++) {
-		const contracts = await createAPICall("contract", playerData.screen_name)
-		console.log(contracts)
+	const contracts = await createAPICall("contract", playerData.screen_name)
+	console.log(contracts)
 
-		for (const contr of contracts.cargo) {
-			const contract = document.createElement("li")
-			contract.data = contr
-			console.log(contract.data)
-			contract.innerText = contract.data.description
+	for (const contr of contracts.cargo) {
+		const contract = document.createElement("li")
+		contract.data = contr
+		console.log(contract.data)
+		contract.innerText = contract.data.description
 
-			// valitsee rando lentokentän contracts.airportista
-			const randomAirport = contracts.airport[Math.floor(Math.random() * contracts.airport.length)]
-			console.log('Selected random airport:', randomAirport)
+		// valitsee rando lentokentän contracts.airportista
+		const randomAirport = contracts.airport[Math.floor(Math.random() * contracts.airport.length)]
+		console.log('Selected random airport:', randomAirport)
 
-			// ottaa latitude ja longitude valitusta lentokentästä
-			const airportLatLng = L.latLng(randomAirport.latitude_deg, randomAirport.longitude_deg)
+		// ottaa latitude ja longitude valitusta lentokentästä
+		const airportLatLng = L.latLng(randomAirport.latitude_deg, randomAirport.longitude_deg)
 
-			// laskee etäisyyden pelaajan ja valitun lento kentän välillä
-			const distanceInMeters = playerLatLng.distanceTo(airportLatLng)
-			const distanceInKilometers = (distanceInMeters / 1000).toFixed(2)
+		// laskee etäisyyden pelaajan ja valitun lento kentän välillä
+		const distanceInMeters = playerLatLng.distanceTo(airportLatLng)
+		const distanceInKilometers = (distanceInMeters / 1000).toFixed(2)
 
-			// luo tooltipin näyttääkseen contract info on hover
-			const tooltip = document.createElement('div')
-			tooltip.style.position = 'absolute'
-			tooltip.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'
-			tooltip.style.color = 'white'
-			tooltip.style.padding = '5px'
-			tooltip.style.borderRadius = '5px'
-			tooltip.style.display = 'none'
+		// luo tooltipin näyttääkseen contract info on hover
+		const tooltip = document.createElement('div')
+		tooltip.style.position = 'absolute'
+		tooltip.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'
+		tooltip.style.color = 'white'
+		tooltip.style.padding = '5px'
+		tooltip.style.borderRadius = '5px'
+		tooltip.style.display = 'none'
 
-			// Append tooltipin contract itemiin
-			contract.appendChild(tooltip)
+		// Append tooltipin contract itemiin
+		contract.appendChild(tooltip)
 
-			// declare redMarker here so it can be accessed in both mouseover and mouseout event listeners
-			let redMarker;
+		// declare redMarker here so it can be accessed in both mouseover and mouseout event listeners
+		let redMarker;
 
-			// näyttää contract info kun hiiri hoveraa
-			contract.addEventListener('mouseover', () => {
-				tooltip.innerHTML = `Destination: ${randomAirport.airport}<br>
+		// näyttää contract info kun hiiri hoveraa
+		contract.addEventListener('mouseover', () => {
+			tooltip.innerHTML = `Destination: ${randomAirport.airport}<br>
 					Country: ${randomAirport.country}<br>
 					Reward: $${contract.data.delivery_value}<br>
 					Distance: ${distanceInKilometers} Kilometers
 				`
-				tooltip.style.display = 'block'
+			tooltip.style.display = 'block'
 
-				map.panTo(airportLatLng)
-				// lisää punasen pallon contract lentokentä päälle kun hoveraa contracteja
-				redMarker = L.circleMarker(airportLatLng, {
-					color: `red`,
-					fillColor: `red`,
-					fillOpacity: 0.6,
-					radius: 10
-				}).addTo(map)
-				redMarker.data = { airport: null }
-				redMarker.data.airport = randomAirport
-				redMarker.addEventListener('click', flyTo)
-			})
+			map.panTo(airportLatLng)
+			// lisää punasen pallon contract lentokentä päälle kun hoveraa contracteja
+			redMarker = L.circleMarker(airportLatLng, {
+				color: `red`,
+				fillColor: `red`,
+				fillOpacity: 0.6,
+				radius: 10
+			}).addTo(map)
+			redMarker.data = { airport: null }
+			redMarker.data.airport = randomAirport
+			redMarker.addEventListener('click', flyTo)
+		})
 
-			contract.addEventListener('mouseout', () => {
-				tooltip.style.display = 'none' // piilottaa tooltipin ku hiiri ei oo enää päällä
-				if (redMarker) {
-					map.removeLayer(redMarker)
-				}
-			})
+		contract.addEventListener('mouseout', () => {
+			tooltip.style.display = 'none' // piilottaa tooltipin ku hiiri ei oo enää päällä
+			if (redMarker) {
+				map.removeLayer(redMarker)
+			}
+		})
 
-			contract.addEventListener('click', selectContract)
-			contractList.appendChild(contract)
-		}
+		contract.addEventListener('click', selectContract)
+		contractList.appendChild(contract)
 	}
 
 	dialog.showModal()
@@ -253,6 +255,32 @@ const createAPICall = async (api_endpoint, data) => {
 	const url = "http://127.0.0.1:3000/api/"
 	try {
 		const response = await fetch(url + api_endpoint + "/" + data, fetchOptions)
+		if (response.ok) {
+			console.log("promise resolved and HTTP status is succesful")
+			const json_response = await response.json()
+			return json_response
+		} else {
+			const json_response = await response.json()
+			// json_response still needs to get processed
+			console.log(json_response.text)
+		}
+	} catch (error) {
+		console.error("promise rejected: " + error)
+	}
+}
+
+const createAPIPostCall = async (api_endpoint, id, data) => {
+	// data is the stuff we want to update in a dictionary
+	const fetchOptions = {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify(data)
+	}
+	const url = "http://127.0.0.1:3000/api/"
+	try {
+		const response = await fetch(url + api_endpoint + "/" + id, fetchOptions)
 		if (response.ok) {
 			console.log("promise resolved and HTTP status is succesful")
 			const json_response = await response.json()
