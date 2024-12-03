@@ -47,6 +47,17 @@ def create_player(name: str):
 	add_player_to_db(name)
 	return Response(response=json.dumps({"text":"Player created"}), status=200, mimetype="application/json")
 
+@app.route("/api/player/update/<name>", methods=['GET',"POST"])
+def update_player(name: str):
+	data = request.json
+	try:
+		pm.update_player(name,data)
+	except Exception as e:
+		e.with_traceback()
+		return Response(status=400,response=json.dumps({"text":"Bad Request, Check your payload"}), mimetype="application/json")
+
+	return Response(status=200, response=json.dumps({"text": "Player Updated"}), mimetype="application/json")
+
 
 @app.route("/api/plane/<plane_id>")
 def get_plane(plane_id:int):
@@ -98,7 +109,6 @@ planeManager = PlaneManager(db)
 contractManager = ContractManager(db)
 
 pm = PlayerManager(db)
-pm.login("heini")
 def get_airports(icao: str)->dict:
 	fetch_airport_sql = f"""
 	SELECT name, municipality
@@ -129,11 +139,21 @@ def get_players_from_db():
 	return db.fetch_data("game")
 
 def add_player_to_db(name):
-	db.add_data([{"co2_consumed": 0, "co2_budget": 20000,
-	              "currency": 100000, "location": "EFHK",
-	              "fuel_amount": 69420, "current_day": 0,
-	              "screen_name": name,
-	              }], "game")
+
+	if pm.player_exists(name) is False:
+		add_data = {"co2_consumed": 0,
+		            "co2_budget": 20000,
+		            "currency": 100000,
+		            "location": "EFHK",
+		            "fuel_amount": 69420,
+		            "current_day": 0,
+		            "screen_name": name}
+		print(add_data)
+		db.add_data([add_data], "game")
+		pm.login(name)
+	else:
+		pm.login(name)
+
 
 def db_airports_by_distance(amount:int, distance:int,screen_name:str) -> list:
 	print(get_player_data(screen_name))
