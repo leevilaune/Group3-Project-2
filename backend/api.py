@@ -1,8 +1,9 @@
 # setting off formatting for neovim for this file
 # fmt: off
+import webbrowser
 from pyexpat import native_encoding
 
-from flask import Flask, Response, request
+from flask import Flask, Response, request, render_template
 from flask_cors import CORS
 import json
 import os
@@ -91,6 +92,7 @@ def page_not_found(errorcode):
     }
 	return Response(response=json.dumps(error), status=errorcode.code, mimetype="application/json")
 
+webbrowser.open_new_tab("http://localhost:63342/Group3-Project-2/frontend/index.html")
 current_dir = os.path.dirname(__file__)
 db_path = os.path.join(current_dir, '..', 'db.json')
 with open(db_path) as file:
@@ -111,7 +113,7 @@ contractManager = ContractManager(db)
 pm = PlayerManager(db)
 def get_airports(icao: str)->dict:
 	fetch_airport_sql = f"""
-	SELECT name, municipality
+	SELECT *
     FROM airport
     WHERE airport.ident = '{icao}'
 	"""
