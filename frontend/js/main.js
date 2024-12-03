@@ -7,7 +7,9 @@
 //3 plane options
 //random encounter
 //
-let playerData
+let playerData = null
+
+let gameRunning = false
 
 let markerLayer = L.layerGroup()
 
@@ -39,8 +41,6 @@ form.addEventListener("submit", async (evt) => {
 
 		// set coordinates to pan to (Helsinki)
 
-
-
 		// set player data to the player card element
 		document.querySelector(".id-grid-name").innerText = username
 		document.querySelector(".id-grid-currency").innerText = playerData.currency
@@ -70,11 +70,17 @@ async function flyTo() {
 	// generate new markers for close airports (put the code that generated it earlier in function probably)
 	// update player data
 	playerData.location = this.data.airport.ident
-	await createAPIPostCall("player/update", playerData.screen_name, playerData)
+
+	if (playerData.location == playerData.contract.airport.ident) {
+		playerData.currency += playerData.contract.delivery_value
+		await getContracts()
+	}
 
 	await updateMarkers()
 	// send data to backend when we hit the contract probably
-	// remove the marker from the layer
+	await createAPIPostCall("player/update", playerData.screen_name, playerData)
+
+	// remove the marker from the layer // maybe only ones that are certain distance away or somehitn
 	//markerLayer.removeLayer(this)
 }
 
@@ -84,6 +90,8 @@ async function selectPlane() {
 	document.querySelector(".id-grid-temp").innerText = this.data.type
 	const listItems = this.parentNode.querySelectorAll("li")
 	listItems.forEach((item) => item.removeEventListener('click', selectPlane))
+
+	playerData.rented_plane = this.data.id
 
 	dialog.close()
 	dialog.innerText = ""
@@ -133,7 +141,10 @@ async function selectContract() {
 
 	// don't know if there is better way to do this than to daisychain async functions
 	// this starts the mainloop
-	await setupGame()
+	// making some spaghetti ... 
+	if (!gameRunning) {
+		await setupGame()
+	}
 }
 
 const getContracts = async () => {
@@ -231,11 +242,16 @@ const updateMarkers = async () => {
 	console.log(airportsClose)
 	for (const airport of airportsClose) {
 		let draw = true
+		// this is really bad it always goes through every layer fix if time left
 		// go through all the layers(markers) and check if it already exists
 		markerLayer.eachLayer((layer) => {
 			if (layer.data.airport.ident == playerData.location) {
+				draw = false
 				layer.setStyle({ fillColor: "green", color: "green" })
+				console.log("changing color of " + layer.data.airport.ident)
+				return
 			}
+
 			if (layer.data.airport.ident == airport.ident) {
 				draw = false
 				if (layer.data.airport.ident == playerData.contract.airport.ident) {
@@ -261,6 +277,7 @@ const updateMarkers = async () => {
 }
 
 const setupGame = async () => {
+	gameRunning = true
 	console.log("game is running")
 	console.log(playerData)
 
