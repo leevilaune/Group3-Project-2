@@ -53,7 +53,7 @@ def update_player(name: str):
 	try:
 		pm.update_player(name,data)
 	except Exception as e:
-		e.with_traceback()
+		print(e)
 		return Response(status=400,response=json.dumps({"text":"Bad Request, Check your payload"}), mimetype="application/json")
 
 	return Response(status=200, response=json.dumps({"text": "Player Updated"}), mimetype="application/json")
