@@ -76,9 +76,10 @@ async function flyTo() {
 		await getContracts()
 	}
 
-	await updateMarkers()
 	// send data to backend when we hit the contract probably
 	await createAPIPostCall("player/update", playerData.screen_name, playerData)
+
+	await updateMarkers()
 
 	// remove the marker from the layer // maybe only ones that are certain distance away or somehitn
 	//markerLayer.removeLayer(this)
@@ -237,34 +238,28 @@ const getContracts = async () => {
 
 const updateMarkers = async () => {
 	// add markers and attach data to them
-	console.log(playerData)
 	const airportsClose = await createAPICall("airport/bydistance/1000/10", playerData.screen_name)
-	console.log(airportsClose)
 	for (const airport of airportsClose) {
 		let draw = true
 		// this is really bad it always goes through every layer fix if time left
 		// go through all the layers(markers) and check if it already exists
 		markerLayer.eachLayer((layer) => {
-			if (layer.data.airport.ident == playerData.location) {
-				draw = false
-				layer.setStyle({ fillColor: "green", color: "green" })
-				console.log("changing color of " + layer.data.airport.ident)
-				return
+			if (layer.data.airport.ident != playerData.contract.airport.ident) {
+				layer.setStyle({ fillColor: "#3388ff", color: "#3388ff" })
 			}
-
 			if (layer.data.airport.ident == airport.ident) {
-				draw = false
-				if (layer.data.airport.ident == playerData.contract.airport.ident) {
-				} else {
-					layer.setStyle({ fillColor: "#3388ff", color: "#3388ff" })
-					return
-				}
+				draw = false;
+			}
+			if (layer.data.airport.ident == playerData.location) {
+				layer.setStyle({ fillColor: "green", color: "green" })
+				//console.log("changing color of " + layer.data.airport.ident)
 			}
 		})
 		// draw markers that are not already drawn
 		if ((airport.ident != playerData.contract.airport.ident) && draw) {
 			let latlng = L.latLng(airport.latitude_deg, airport.longitude_deg)
 			let marker = L.circleMarker(latlng)
+			marker.setStyle({ fillColor: "#3388ff", color: "#3388ff" })
 			// you can attach data to the marker,, you can put the data of the airport here and use it in the flyTo phase
 			marker.data = { airport }
 			// event listener for clicking the markers
@@ -283,6 +278,13 @@ const setupGame = async () => {
 
 	// helsinki coordinates
 	let latlng = L.latLng(60.3179, 24.9496)
+	let marker = L.circleMarker(latlng)
+	marker.setStyle({ fillColor: "green", color: "green" })
+	marker.data = { airport: { ident: "EFHK", latitude_deg: 60.3179, longitude_deg: 24.9496 } }
+	marker.addEventListener('click', flyTo)
+	markerLayer.addLayer(marker)
+	markerLayer.addTo(map)
+
 	map.panTo(latlng)
 
 	// draw all markers for airports
