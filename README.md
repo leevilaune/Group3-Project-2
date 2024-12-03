@@ -21,7 +21,20 @@ This API provides various endpoints to interact with airport, player, plane, and
 **Response:**
 - `200 OK`: JSON list of airports.  
 - `404 Not Found`: No airports found near the specified location.  
-
+```json
+{
+  [
+    {
+      "country": "string",
+      "airport": "string",
+      "ident": "string",
+      "latitude_deg": "float",
+      "longitude_deg": "float",
+      "distance": "float"
+    }
+  ]
+}
+```
 ---
 
 ### 2. Get Airport by ICAO Code
@@ -34,7 +47,29 @@ This API provides various endpoints to interact with airport, player, plane, and
 **Response:**
 - `200 OK`: JSON object with airport details.  
 - `404 Not Found`: Airport not found.  
+```json
+{
+  "id": "integer",
+  "ident": "string",
+  "type": "string",
+  "name": "string",
+  "latitude_deg": "float",
+  "longitude_deg": "float",
+  "elevation_ft": "integer",
+  "continent": "string",
+  "iso_country": "string",
+  "iso_region": "string",
+  "municipality": "string",
+  "scheduled_service": "string",
+  "gps_code": "string",
+  "iata_code": "string",
+  "local_code": "string",
+  "home_link": "string",
+  "wikipedia_link": "string",
+  "keywords": "string"
+}
 
+```
 ---
 
 ### 3. Get Player Data
@@ -47,7 +82,20 @@ This API provides various endpoints to interact with airport, player, plane, and
 **Response:**
 - `200 OK`: JSON object with player details.  
 - `404 Not Found`: Player not found.  
+```json
+{
+  "id": "integer",
+  "co2_consumed": "float",
+  "co2_budget": "float",
+  "location": "string",
+  "screen_name": "string",
+  "currency": "float",
+  "fuel_amount": "float",
+  "rented_plane": "integer",
+  "current_day": "float"
+}
 
+```
 ---
 
 ### 4. Create a Player
