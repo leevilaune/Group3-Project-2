@@ -22,18 +22,16 @@ This API provides various endpoints to interact with airport, player, plane, and
 - `200 OK`: JSON list of airports.  
 - `404 Not Found`: No airports found near the specified location.  
 ```json
-{
-  [
-    {
-      "country": "string",
-      "airport": "string",
-      "ident": "string",
-      "latitude_deg": "float",
-      "longitude_deg": "float",
-      "distance": "float"
-    }
-  ]
-}
+[
+  {
+    "country": "string",
+    "airport": "string",
+    "ident": "string",
+    "latitude_deg": "float",
+    "longitude_deg": "float",
+    "distance": "float"
+  }
+]
 ```
 ---
 
