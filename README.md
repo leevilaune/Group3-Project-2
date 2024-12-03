@@ -117,7 +117,29 @@ all fields, just the ones you want to update
 **Response:**
 - `200 OK`: JSON object with contract details.  
 - `404 Not Found`: Contract not found.  
+```json
+{
+  "cargo": "array",
+  "cargo[]": {
+    "id": "integer",
+    "delivery_value": "float",
+    "weight": "float",
+    "description": "string"
+  },
+  "airport": "array",
+  "airport[]": {
+    "country": "string",
+    "airport": "string",
+    "ident": "string",
+    "latitude_deg": "float",
+    "longitude_deg": "float",
+    "distance": "float"
+  },
+  "reward": "float",
+  "distance": "float"
+}
 
+```
 ---
 
 ### Error Handling
