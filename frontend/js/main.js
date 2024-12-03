@@ -121,6 +121,18 @@ async function selectContract() {
 	dialog.close()
 	dialog.innerText = ""
 
+	playerData.currentContract = {
+		destination: this.data.destination_airport,
+		reward: this.data.delivery_value,
+		description: this.data.description,
+	};
+
+	//testausta varten!
+	console.log(playerData.currentContract);
+    console.log(playerData.currentContract.destination);
+    console.log(playerData.currentContract.reward);
+    console.log(playerData.currentContract.description);
+
 
 	// don't know if there is better way to do this than to daisychain async functions
 	// this starts the mainloop
@@ -147,13 +159,21 @@ const getContracts = async () => {
 
 		for (const contr of contracts.cargo) {
 			const contract = document.createElement("li")
-			contract.data = contr
 			console.log(contract.data)
-			contract.innerText = contract.data.description
 
 			// valitsee rando lentokentän contracts.airportista
 			const randomAirport = contracts.airport[Math.floor(Math.random() * contracts.airport.length)]
 			console.log('Selected random airport:', randomAirport)
+
+			contract.data = {
+    			description: contr.description,
+    			delivery_value: contr.delivery_value,
+    			destination_airport: randomAirport,
+			};
+
+			contract.innerText = contract.data.description
+			contract.addEventListener("click", selectContract)
+			contractList.appendChild(contract);
 
 			// ottaa latitude ja longitude valitusta lentokentästä
 			const airportLatLng = L.latLng(randomAirport.latitude_deg, randomAirport.longitude_deg)
@@ -174,7 +194,6 @@ const getContracts = async () => {
 			// Append tooltipin contract itemiin
 			contract.appendChild(tooltip)
 
-			// declare redMarker here so it can be accessed in both mouseover and mouseout event listeners
 			let redMarker;
 
 			// näyttää contract info kun hiiri hoveraa
