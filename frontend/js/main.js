@@ -8,7 +8,8 @@
 //random encounter
 //
 let playerData
-let markerLayer
+
+let markerLayer = L.layerGroup()
 
 // get the dialog element
 const dialog = document.querySelector("dialog")
@@ -70,8 +71,10 @@ async function flyTo() {
 	// update player data
 	await createAPIPostCall("player/update", playerData.screen_name, { location: this.data.airport.ident })
 
+	await updateMarkers()
 	// send data to backend when we hit the contract probably
-	this.remove()
+	// remove the marker from the layer
+	markerLayer.removeLayer(this)
 }
 
 async function selectPlane() {
@@ -115,6 +118,7 @@ const getPlanes = async () => {
 }
 
 async function selectContract() {
+	console.log(this)
 	playerData.contract = this.data
 
 	console.log(playerData.contract)
@@ -157,6 +161,7 @@ const getContracts = async () => {
 		// valitsee rando lentokentän contracts.airportista
 		const randomAirport = contracts.airport[Math.floor(Math.random() * contracts.airport.length)]
 		console.log('Selected random airport:', randomAirport)
+		contract.data.airport = randomAirport
 
 		// ottaa latitude ja longitude valitusta lentokentästä
 		const airportLatLng = L.latLng(randomAirport.latitude_deg, randomAirport.longitude_deg)
@@ -196,7 +201,9 @@ const getContracts = async () => {
 				fillColor: `red`,
 				fillOpacity: 0.6,
 				radius: 10
-			}).addTo(map)
+			})
+			markerLayer.addLayer(redMarker)
+			markerLayer.addTo(map)
 			redMarker.data = { airport: null }
 			redMarker.data.airport = randomAirport
 			redMarker.addEventListener('click', flyTo)
@@ -205,7 +212,7 @@ const getContracts = async () => {
 		contract.addEventListener('mouseout', () => {
 			tooltip.style.display = 'none' // piilottaa tooltipin ku hiiri ei oo enää päällä
 			if (redMarker) {
-				map.removeLayer(redMarker)
+				markerLayer.removeLayer(redMarker)
 			}
 		})
 
@@ -216,31 +223,46 @@ const getContracts = async () => {
 	dialog.showModal()
 }
 
-const setupGame = async () => {
-	console.log("game is running")
-
-	let latlng = L.latLng(60.3179, 24.9496)
-	let markers = []
-
+const updateMarkers = async () => {
 	// add markers and attach data to them
 	const airportsClose = await createAPICall("airport/bydistance/1000/10", playerData.screen_name)
+	console.log(airportsClose)
 	for (const airport of airportsClose) {
-		console.log(airport)
-		let latlng = L.latLng(airport.latitude_deg, airport.longitude_deg)
-		let marker = L.circleMarker(latlng)
-		// you can attach data to the marker,, you can put the data of the airport here and use it in the flyTo phase
-		marker.data = { airport }
-		// event listener for clicking the markers
-		marker.addEventListener('click', flyTo)
-		markers.push(marker)
+		let draw = true
+		// go through all the layers(markers) and check if it already exists
+		markerLayer.eachLayer((layer) => {
+			if (layer.data.airport.ident == airport.ident) {
+				draw = false
+				console.log("airport already drawn")
+				return
+			}
+		})
+		if ((airport.ident != playerData.contract.airport.ident) && draw) {
+			let latlng = L.latLng(airport.latitude_deg, airport.longitude_deg)
+			let marker = L.circleMarker(latlng)
+			// you can attach data to the marker,, you can put the data of the airport here and use it in the flyTo phase
+			marker.data = { airport }
+			// event listener for clicking the markers
+			marker.addEventListener('click', flyTo)
+			markerLayer.addLayer(marker)
+		}
 	}
 
-	markerLayer = L.layerGroup(markers)
 	markerLayer.addTo(map)
+}
+
+const setupGame = async () => {
+	console.log("game is running")
+	console.log(playerData)
+
+	// helsinki coordinates
+	let latlng = L.latLng(60.3179, 24.9496)
+	map.panTo(latlng)
+
+	// draw all markers for airports
+	await updateMarkers()
 
 	// pan to coordinates
-	map.panTo(latlng)
-	// draw points on the map
 	// update values on the screen
 }
 
