@@ -28,12 +28,13 @@ class PlayerManager:
 		self.db = db
 		self.players = []
 
-	def login(self, screen_name:str):
+	def login(self, screen_name:str) -> bool:
 		"""
 		:param screen_name:
 		:return:
 		"""
-
+		if self.player_logged_in(screen_name):
+			return True
 		self.players.append(Player(self.db.get_player_data(screen_name)))
 
 	def logout(self, screen_name:str):
@@ -44,6 +45,11 @@ class PlayerManager:
 
 	def player_exists(self, screen_name: str) -> bool:
 		return self.db.user_exists_by_name(screen_name)
+
+	def player_logged_in(self, screen_name: str) -> bool:
+		for p in self.players:
+			if p.screen_name == screen_name:
+				return True
 
 	def get_player(self, screen_name:str) -> Player:
 		for p in self.players:

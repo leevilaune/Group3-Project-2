@@ -13,7 +13,6 @@ from backend.game.Contract import CargoManager, ContractManager
 from backend.game.Database import Database
 from backend.game.Game import PlayerManager
 from backend.game.Plane import PlaneManager
-
 app = Flask(__name__)
 CORS(app)
 
@@ -44,8 +43,11 @@ def get_player(name: str):
 
 @app.route("/api/player/create/<name>")
 def create_player(name: str):
-	add_player_to_db(name)
-	return Response(response=json.dumps({"text":"Player created"}), status=200, mimetype="application/json")
+	code = add_player_to_db(name)
+	#if code == 403:
+	#	return Response(response=json.dumps({"text":"Already Logged in"}), status=403, mimetype="application/json")
+	if code == 200:
+		return Response(response=json.dumps({"text":"Player created"}), status=200, mimetype="application/json")
 
 @app.route("/api/player/update/<name>", methods=['GET',"POST"])
 def update_player(name: str):
@@ -77,11 +79,11 @@ def get_contract(name):
 
 @app.route("/admin/api/players")
 def get_players():
-	players = get_players_from_db()
+	players = pm.players()
 	if players is None:
 		return Response(response=json.dumps({"code": 404, "text": f"Players not found"}), status=404,
 		                mimetype="application/json")
-	return Response(response=json.dumps(players), status=200, mimetype="application/json")
+	return Response(response=json.dumps({"players":players}), status=200, mimetype="application/json")
 
 @app.errorhandler(404)
 def page_not_found(errorcode):
@@ -106,9 +108,10 @@ connection = mysql.connector.connect(
 cursor = connection.cursor(dictionary=True)
 db = Database()
 planeManager = PlaneManager(db)
-contractManager = ContractManager(db)
-
 pm = PlayerManager(db)
+
+contractManager = ContractManager(db,planeManager,pm)
+
 def get_airports(icao: str)->dict:
 	fetch_airport_sql = f"""
 	SELECT name, municipality
@@ -138,7 +141,7 @@ def get_static_data(table)->dict:
 def get_players_from_db():
 	return db.fetch_data("game")
 
-def add_player_to_db(name):
+def add_player_to_db(name) -> int:
 
 	if pm.player_exists(name) is False:
 		add_data = {"co2_consumed": 0,
@@ -151,9 +154,11 @@ def add_player_to_db(name):
 		print(add_data)
 		db.add_data([add_data], "game")
 		pm.login(name)
+		return 200
 	else:
-		pm.login(name)
-
+		if pm.login(name):
+			return 403
+		else: return 200
 
 def db_airports_by_distance(amount:int, distance:int,screen_name:str) -> list:
 	print(get_player_data(screen_name))
