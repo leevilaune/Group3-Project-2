@@ -35,7 +35,7 @@ def get_airport(icao:str):
 
 @app.route("/api/player/<name>")
 def get_player(name: str):
-	player = get_player_data(name)
+	player = db_get_player(name)
 	if player is None:
 		return Response(response=json.dumps({"code": 404, "text": f"Player {name} not found"}), status=404,
 	                    mimetype="application/json")
@@ -113,30 +113,10 @@ pm = PlayerManager(db)
 contractManager = ContractManager(db,planeManager,pm)
 
 def get_airports(icao: str)->dict:
-	fetch_airport_sql = f"""
-	SELECT name, municipality
-    FROM airport
-    WHERE airport.ident = '{icao}'
-	"""
-	cursor.execute(fetch_airport_sql)
-	return cursor.fetchone()
+	return db.get_airport(icao)
 
-def get_player_data(name: str)->dict:
-	fetch_player_sql = f"""
-    SELECT *
-    FROM game
-    WHERE screen_name = '{name}'
-    """
-	cursor.execute(fetch_player_sql)
-	return cursor.fetchone()
-
-def get_static_data(table)->dict:
-	fetch_data_sql = f"""
-	SELECT *
-	FROM {table}
-	"""
-	cursor.execute(fetch_data_sql)
-	return cursor.fetchall()
+def db_get_player(name: str)->dict:
+	return db.get_player_data(name)
 
 def get_players_from_db():
 	return db.fetch_data("game")
@@ -161,7 +141,7 @@ def add_player_to_db(name) -> int:
 		else: return 200
 
 def db_airports_by_distance(amount:int, distance:int,screen_name:str) -> list:
-	print(get_player_data(screen_name))
+	print(db_get_player(screen_name))
 	return db.get_airports_by_distance("large_airport", distance,screen_name,amount)
 if __name__ == '__main__':
 	app.run(use_reloader=False,
