@@ -69,7 +69,7 @@ dialog li:hover {
 
 .grid-menu { grid-area: menu; background-color: #646464;}
 .grid-map { grid-area: main; background-color: #ffffff; }
-.grid-right { grid-area: right; background-color: #646464;}
+.grid-right { grid-area: right; background-color: #393939; border-style: outset; border-width: 0.5vw; border-top-style: none; border-color: #d4b100;}
 .grid-footer { grid-area: footer; background-color: #646464;}
 
 .grid-container {
@@ -90,5 +90,20 @@ dialog li:hover {
 .grid-container > div {
     text-align: center;
     padding: 0px 0;
-    font-size: 2vw;
+    font-size: 1.5em;
+}
+
+.gps-data-block {
+    background-color: #393939;
+    border-color: #d4b100;
+    border-width: 0.5vw;
+    border-bottom-style: solid;
+    height: auto;
+    text-align: center;
+}
+
+.gps-data-block > p {
+    margin-block-start: 0.125em;
+    margin-block-end: 0.125em;
+    color: #ffffff80;
 }

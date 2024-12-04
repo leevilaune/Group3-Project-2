@@ -23,7 +23,7 @@
 <body>
 	<div class="grid-container" style="position: absolute;">
 		<div class="grid-map">
-			<div style="width: 100%;" id="map"></div>
+			<div style="width: 100%; z-index:0" id="map"></div>
 		</div>
 		<div class="grid-menu">
 			<div class="id-card-class">
@@ -34,20 +34,31 @@
 					style="width: 100%; height: 100%;">
 			</div>
 			<div>test</div>
-			<div id="clipboard-button" style="position: relative; left: 8vw; top: -5vw; transform: rotate(5deg)">
+			<div id="clipboard-button" style="position: relative; left: 19vw; top: -6vw; transform: rotate(5deg); width: 5vw;">
 				<p style="position: absolute; text-align: center; display: inline; width: 5vw;">test</p>
 				<img src="img/interface/clipboard.png" style="width: 5vw; height: auto;">
 			</div>
 		</div>
 		<div class="grid-right">
-			idk
+			<div class="gps-data-block">
+				<p>number</p>
+				<p>LATITUDE</p>
+			</div>
+			<div class="gps-data-block">
+				<p>number</p>
+				<p>LONGITUDE</p>
+			</div>
+			<div class="gps-data-block">
+				<p>number</p>
+				<p>DISTANCE</p>
+			</div>
 		</div>
 		<div class="grid-footer">
 			footer
 		</div>
 	</div>
-	<div class="clipboard-large" style="position:absolute;">
-		<img src="img/interface/clipboard.png" style="width: auto; height: 100%;">
+	<div class="clipboard-large" style="position:fixed;">
+		<img src="img/interface/clipboard.png" style="width: auto; height: 100vh;">
 	</div>
 </body>
 
