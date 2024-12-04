@@ -392,4 +392,3 @@ const fetchTable = async (table) => {
         console.error("promise rejected: " + error)
     }
 }
-
