@@ -50,8 +50,8 @@
         teamMembers.forEach((card) => {
             card.addEventListener('mousemove', (e) => {
                 const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left; // Mouse X relative to the card
-                const y = e.clientY - rect.top; // Mouse Y relative to the card
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
 
                 card.style.transform = `translateY(-10px) rotateX(${-(y - rect.height / 2) / 10}deg) rotateY(${(x - rect.width / 2) / 10}deg)`;
             });
