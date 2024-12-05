@@ -58,7 +58,7 @@ def update_player(name: str):
 		print(e)
 		return Response(status=400,response=json.dumps({"text":"Bad Request, Check your payload"}), mimetype="application/json")
 
-	return Response(status=200, response=json.dumps({"text": "Player Updated"}), mimetype="application/json")
+	return Response(status=200, response=json.dumps(pm.get_player(name).__dict__), mimetype="application/json")
 
 
 @app.route("/api/plane/<plane_id>")
@@ -108,7 +108,7 @@ connection = mysql.connector.connect(
 cursor = connection.cursor(dictionary=True)
 db = Database()
 planeManager = PlaneManager(db)
-pm = PlayerManager(db)
+pm = PlayerManager(db,planeManager)
 
 contractManager = ContractManager(db,planeManager,pm)
 
