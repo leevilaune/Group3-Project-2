@@ -26,14 +26,23 @@ body {
 dialog {
     margin: auto;
     outline: none;
+    overflow: visible;
     border: 1px solid black;
     border-radius: 0.25rem;
+}
+
+dialog div {
+    pointer-events: none;
 }
 
 dialog li:hover {
     background: green;
     cursor: pointer;
 }
+
+/*dialog ul {*/
+/*    min-height: 200px;*/
+/*}*/
 
 .id-card-class {
     display: grid;

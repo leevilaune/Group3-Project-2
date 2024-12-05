@@ -189,7 +189,9 @@ async function selectPlane() {
     const listItems = this.parentNode.querySelectorAll("li")
     listItems.forEach((item) => item.removeEventListener('click', selectPlane))
 
+    player.plane = this
     player.data.rented_plane = this.data.id
+    player.data.currency -= this.data.price
 
     await updateGame()
 
@@ -216,12 +218,46 @@ const getPlanes = async () => {
     const planeList = dialog.querySelector("#item-list")
     for (let i = 1; i <= 3; i++) {
         const plane = document.createElement("li")
-        plane.data = await createAPICall("plane", i * 2)
+        plane.data = await createAPICall("plane", parseInt(Math.random() * 1000 % 24 + 1))
         console.log(plane.data)
         plane.innerText = plane.data.type
+        plane.data.price = parseInt(plane.data.fuel_consumption) + parseInt(plane.data.max_speed) * 50
         plane.addEventListener('click', selectPlane)
         planeList.appendChild(plane)
+
+        const tooltip = document.createElement('div')
+        tooltip.style.position = 'absolute'
+        tooltip.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'
+        tooltip.style.color = 'white'
+        tooltip.style.padding = '5px'
+        tooltip.style.borderRadius = '5px'
+        tooltip.style.display = 'none'
+
+        // Append tooltipin contract itemiin
+        plane.appendChild(tooltip)
+
+        // declare redMarker here so it can be accessed in both mouseover and mouseout event listeners
+        let redMarker;
+
+        // näyttää plane info kun hiiri hoveraa
+        plane.addEventListener('mouseover', () => {
+            tooltip.innerHTML = `
+Type: ${plane.data.type}
+Fuel Consumption: ${plane.data.fuel_consumption}
+Max Speed: ${plane.data.max_speed}
+Price: ${plane.data.price}
+`
+            tooltip.style.display = 'block'
+        })
+
+        plane.addEventListener('mouseout', () => {
+            tooltip.style.display = 'none' // piilottaa tooltipin ku hiiri ei oo enää päällä
+            if (redMarker) {
+                markerLayer.removeLayer(redMarker)
+            }
+        })
     }
+
 
     dialog.showModal()
 }
