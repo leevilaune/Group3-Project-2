@@ -1,3 +1,4 @@
+# fmt: off
 from backend.game.Database import Database
 
 class Game:
@@ -28,6 +29,11 @@ class PlayerManager:
 		self.db = db
 		self.players = []
 
+		# get all the existing players from the database
+		players = self.db.fetch_data("game")
+		for player in players:
+			self.players.append(Player(player))
+
 	def login(self, screen_name:str):
 		"""
 		:param screen_name:
@@ -53,3 +59,4 @@ class PlayerManager:
 		player = self.get_player(screen_name)
 		player.update(json)
 		self.db.update_data([player.__dict__],"game","screen_name")
+
