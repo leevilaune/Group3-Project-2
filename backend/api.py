@@ -27,7 +27,7 @@ def get_airport_by_distance(amount, distance,name):
 
 @app.route("/api/airport/<icao>")
 def get_airport(icao:str):
-	airport = get_airports(icao)
+	airport = db_get_airport(icao)
 	if airport is None:
 		return Response(response=json.dumps({"code": 404, "text": f"Airport {icao} not found"}), status=404,
 		                mimetype="application/json")
@@ -114,6 +114,12 @@ contractManager = ContractManager(db,planeManager,pm)
 
 def get_players_from_db():
 	return db.fetch_data("game")
+
+def db_get_player(name):
+	return db.get_player_data(name)
+
+def db_get_airport(icao):
+	return db.get_airport(icao)
 
 def add_player_to_db(name) -> int:
 
