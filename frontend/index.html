@@ -8,7 +8,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-	<link rel="stylesheet" href="index.css">
+	<link rel="stylesheet" href="css/index.css">
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
 	</link>
 	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
@@ -21,7 +21,7 @@
 </dialog>
 
 <body>
-	<div class="grid-container">
+	<div class="grid-container" style="position: absolute;">
 		<div class="grid-map">
 			<div style="width: 100%;" id="map"></div>
 		</div>
@@ -45,6 +45,9 @@
 		<div class="grid-footer">
 			footer
 		</div>
+	</div>
+	<div class="clipboard-large" style="position:absolute;">
+		<img src="img/interface/clipboard.png" style="width: auto; height: 100%;">
 	</div>
 </body>
 

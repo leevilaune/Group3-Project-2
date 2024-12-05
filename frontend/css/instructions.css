@@ -1,17 +1,49 @@
 body{
     margin: 0 auto;
-    background-color: gray;
+    background-color: rgba(128, 128, 128, 0.44);
 }
 
-header{
+header {
+    display: none;
     position: absolute;
     width: 100%;
+    margin: 0 auto;
+    justify-content: center;
+}
+
+header a{
+    text-decoration: none;
+    width: 50%;
     text-align: center;
+    margin: 0;
+    padding: 20px;
+    background-color: #3c3c3c;
+    color: white;
+    font-size: 25px;
+}
+
+header a:first-child{
+   border-right: 1px solid white;
+}
+
+header a:hover{
+    background-color: rgba(255, 255, 255, 0.52);
+    cursor: pointer;
+    color: black;
+    border-bottom: 1px solid white;
 }
 
 
-footer{
+
+footer {
+    display: none;
     text-align: center;
+    padding: 10px;
+   background-color: #3c3c3c;
+    color: #fff;
+    margin-top: auto;
+
+
 }
 
 main{
@@ -19,23 +51,22 @@ main{
 }
 
 .container{
-    display:flex;
+    display: flex;
     width: 55%;
-    height: 100vh;
+   height: calc(100vh - 38.5px);
     margin: auto;
     text-align: center;
     align-items: center;
 }
 
 .block{
+    display: none;
     padding: 10px;
-    height: 50%
-
+    height: 50%;
+    width: 50%;
 }
 
-.block h1{
-    text-decoration: underline;
-}
+
 
 .block p{
     color: black;
@@ -44,7 +75,7 @@ main{
     padding: 10px;
     height: 60%;
     overflow-y: auto;
-    background-color: darkgray;
+    background-color: rgba(255, 255, 255, 0.3);
 
 }
 
@@ -78,20 +109,22 @@ span{
     position: static;
 }
 
+
+
 .spinner{
     margin: 0 auto;
     height: 100px;
     width: 100px;
-    border-bottom: 1px solid white;
-    border-top: 1px solid white;
+    border-top: 3px solid white;
     justify-content: center;
-    animation: spin 2s linear infinite  ;
-    border-radius: 50%
+    animation: spin 0.6s linear;
+    border-radius: 100%;
+
 }
 
 
-@keyframes spin{
-    to{
+@keyframes spin {
+    to {
         transform: rotate(360deg);
     }
 }

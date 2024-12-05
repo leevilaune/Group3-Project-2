@@ -112,12 +112,6 @@ pm = PlayerManager(db,planeManager)
 
 contractManager = ContractManager(db,planeManager,pm)
 
-def get_airports(icao: str)->dict:
-	return db.get_airport(icao)
-
-def db_get_player(name: str)->dict:
-	return db.get_player_data(name)
-
 def get_players_from_db():
 	return db.fetch_data("game")
 
@@ -148,4 +142,3 @@ if __name__ == '__main__':
             host='127.0.0.1',
             port=3000,
             debug=True)
-
