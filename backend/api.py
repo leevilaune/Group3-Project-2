@@ -111,7 +111,7 @@ contractManager = ContractManager(db)
 pm = PlayerManager(db)
 def get_airports(icao: str)->dict:
 	fetch_airport_sql = f"""
-	SELECT name, municipality
+	SELECT *
     FROM airport
     WHERE airport.ident = '{icao}'
 	"""
@@ -163,4 +163,3 @@ if __name__ == '__main__':
             host='127.0.0.1',
             port=3000,
             debug=True)
-

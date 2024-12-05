@@ -24,17 +24,54 @@ dialog.showModal()
 const h2s = dialog.querySelectorAll("h2")
 
 for (let h2 of h2s) {
-    h2.addEventListener("click", function () {
+    h2.addEventListener("click", function() {
         if (h2.id === "new game") {
             nameInput()
         } else if (h2.id === "load game") {
+            loadGame()
             console.log("load game pressed")
         }
     })
 }
 
-function nameInput() {
-    // get the dialog element
+const loadGame = async () => {
+    const form = inputPopup()
+    form.addEventListener('submit', async (evt) => {
+        // boilerplate prevent reload
+        evt.preventDefault()
+
+        // get all the data in FormData class object
+        const formData = new FormData(form)
+
+        // add event listener to get the player data from database
+        if (formData.get("username") != "") {
+            const username = formData.get("username")
+            playerData = await createAPICall("player", username)
+
+            // set coordinates to pan to (Helsinki)
+
+            // set player data to the player card element
+            document.querySelector(".id-grid-name").innerText = username
+            document.querySelector(".id-grid-currency").innerText = playerData.currency
+
+            dialog.innerHTML = ""
+            dialog.close()
+
+            // go to the plane selection screen
+            await getContracts()
+        } else {
+            // check if the error paragraph already exists
+            if (!dialog.querySelector("p")) {
+                const errorMessage = document.createElement("p")
+                errorMessage.innerText = "Please insert a valid name."
+                dialog.appendChild(errorMessage)
+            }
+            console.log("There was no username")
+        }
+    })
+}
+
+const inputPopup = () => {
     const dialog = document.querySelector("dialog")
     dialog.showModal()
 
@@ -44,10 +81,17 @@ function nameInput() {
 	  <input type="text" name="username" placeholder="input player name..."> 
 	  <input type="submit" name="" value="Submit"> 
    </form>`
+    return dialog.querySelector("#player-form")
+
+}
+
+function nameInput() {
+    // get the dialog element
 
 
     // for creating the new player using dialog modal
-    const form = dialog.querySelector("#player-form")
+    const form = inputPopup()
+
     form.addEventListener("submit", async (evt) => {
 
         // boilerplate prevent reload
@@ -118,6 +162,8 @@ async function selectPlane() {
 
     playerData.rented_plane = this.data.id
 
+    await createAPIPostCall("player/update", playerData.screen_name, playerData)
+
     dialog.close()
     dialog.innerText = ""
 
@@ -181,10 +227,14 @@ const getContracts = async () => {
 
     dialog.innerHTML = itemList
 
+    await createAPIPostCall("player/update", playerData.screen_name, playerData)
+
     const contractList = dialog.querySelector("#item-list")
 
     // testi pelaajan location
-    const playerLatLng = L.latLng(60.3179, 24.9496)  // esim helsinki koordinaatit
+    const currentAirport = await createAPICall("airport", playerData.location)
+    console.log(currentAirport)
+    const playerLatLng = L.latLng(currentAirport.latitude_deg, currentAirport.longitude_deg)  // esim helsinki koordinaatit
 
     const contracts = await createAPICall("contract", playerData.screen_name)
     console.log(contracts)
@@ -241,7 +291,7 @@ const getContracts = async () => {
             })
             markerLayer.addLayer(redMarker)
             markerLayer.addTo(map)
-            redMarker.data = {airport: null}
+            redMarker.data = { airport: null }
             redMarker.data.airport = randomAirport
             redMarker.addEventListener('click', flyTo)
         })
@@ -269,13 +319,13 @@ const updateMarkers = async () => {
         // go through all the layers(markers) and check if it already exists
         markerLayer.eachLayer((layer) => {
             if (layer.data.airport.ident != playerData.contract.airport.ident) {
-                layer.setStyle({fillColor: "#3388ff", color: "#3388ff"})
+                layer.setStyle({ fillColor: "#3388ff", color: "#3388ff" })
             }
             if (layer.data.airport.ident == airport.ident) {
                 draw = false;
             }
             if (layer.data.airport.ident == playerData.location) {
-                layer.setStyle({fillColor: "green", color: "green"})
+                layer.setStyle({ fillColor: "green", color: "green" })
                 //console.log("changing color of " + layer.data.airport.ident)
             }
         })
@@ -283,9 +333,9 @@ const updateMarkers = async () => {
         if ((airport.ident != playerData.contract.airport.ident) && draw) {
             let latlng = L.latLng(airport.latitude_deg, airport.longitude_deg)
             let marker = L.circleMarker(latlng)
-            marker.setStyle({fillColor: "#3388ff", color: "#3388ff"})
+            marker.setStyle({ fillColor: "#3388ff", color: "#3388ff" })
             // you can attach data to the marker,, you can put the data of the airport here and use it in the flyTo phase
-            marker.data = {airport}
+            marker.data = { airport }
             // event listener for clicking the markers
             marker.addEventListener('click', flyTo)
             markerLayer.addLayer(marker)
@@ -300,16 +350,19 @@ const setupGame = async () => {
     console.log("game is running")
     console.log(playerData)
 
-    // helsinki coordinates
-    let latlng = L.latLng(60.3179, 24.9496)
-    let marker = L.circleMarker(latlng)
-    marker.setStyle({fillColor: "green", color: "green"})
-    marker.data = {airport: {ident: "EFHK", latitude_deg: 60.3179, longitude_deg: 24.9496}}
+    // testi pelaajan location
+    const currentAirport = await createAPICall("airport", playerData.location)
+    console.log(currentAirport)
+    const playerLatLng = L.latLng(currentAirport.latitude_deg, currentAirport.longitude_deg)  // esim helsinki koordinaatit
+    // player
+    let marker = L.circleMarker(playerLatLng)
+    marker.setStyle({ fillColor: "green", color: "green" })
+    marker.data = { airport: currentAirport }
     marker.addEventListener('click', flyTo)
     markerLayer.addLayer(marker)
     markerLayer.addTo(map)
 
-    map.panTo(latlng)
+    map.panTo(playerLatLng)
 
     // draw all markers for airports
     await updateMarkers()
@@ -392,4 +445,3 @@ const fetchTable = async (table) => {
         console.error("promise rejected: " + error)
     }
 }
-
