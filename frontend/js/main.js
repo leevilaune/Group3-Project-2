@@ -1,5 +1,7 @@
 'use strict'
 
+import { createAPICall, createAPIPostCall, fetchTable } from "./modules/apiCalls.js"
+
 //apilta palautukseen:
 //weather data
 //player/game data
@@ -47,18 +49,19 @@ const loadGame = async () => {
         if (formData.get("username") != "") {
             const username = formData.get("username")
             playerData = await createAPICall("player", username)
+            if (playerData != undefined) {
+                // set coordinates to pan to (Helsinki)
 
-            // set coordinates to pan to (Helsinki)
+                // set player data to the player card element
+                document.querySelector(".id-grid-name").innerText = username
+                document.querySelector(".id-grid-currency").innerText = playerData.currency
 
-            // set player data to the player card element
-            document.querySelector(".id-grid-name").innerText = username
-            document.querySelector(".id-grid-currency").innerText = playerData.currency
+                dialog.innerHTML = ""
+                dialog.close()
 
-            dialog.innerHTML = ""
-            dialog.close()
-
-            // go to the plane selection screen
-            await getContracts()
+                // go to the plane selection screen
+                await getContracts()
+            }
         } else {
             // check if the error paragraph already exists
             if (!dialog.querySelector("p")) {
@@ -369,79 +372,4 @@ const setupGame = async () => {
 
     // pan to coordinates
     // update values on the screen
-}
-
-// api_endpoint is the part after /api/
-const createAPICall = async (api_endpoint, data) => {
-    const fetchOptions = {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-        }
-    }
-    const url = "http://127.0.0.1:3000/api/"
-    try {
-        const response = await fetch(url + api_endpoint + "/" + data, fetchOptions)
-        if (response.ok) {
-            console.log("promise resolved and HTTP status is succesful")
-            const json_response = await response.json()
-            return json_response
-        } else {
-            const json_response = await response.json()
-            // json_response still needs to get processed
-            console.log(json_response.text)
-        }
-    } catch (error) {
-        console.error("promise rejected: " + error)
-    }
-}
-
-const createAPIPostCall = async (api_endpoint, id, data) => {
-    // data is the stuff we want to update in a dictionary
-    const fetchOptions = {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data)
-    }
-    const url = "http://127.0.0.1:3000/api/"
-    try {
-        const response = await fetch(url + api_endpoint + "/" + id, fetchOptions)
-        if (response.ok) {
-            console.log("promise resolved and HTTP status is succesful")
-            const json_response = await response.json()
-            return json_response
-        } else {
-            const json_response = await response.json()
-            // json_response still needs to get processed
-            console.log(json_response.text)
-        }
-    } catch (error) {
-        console.error("promise rejected: " + error)
-    }
-}
-
-const fetchTable = async (table) => {
-    const fetchOptions = {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-        }
-    }
-    const url = "http://127.0.0.1:3000/api/"
-    try {
-        const response = await fetch(url + table, fetchOptions)
-        if (response.ok) {
-            console.log("promise resolved and HTTP status is succesful")
-            const json_response = await response.json()
-            return json_response
-        } else {
-            const json_response = await response.json()
-            // json_response still needs to get processed
-            console.log(json_response.text)
-        }
-    } catch (error) {
-        console.error("promise rejected: " + error)
-    }
 }
