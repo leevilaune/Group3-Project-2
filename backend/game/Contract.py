@@ -4,8 +4,6 @@ import random
 from geopy.distance import distance
 
 from backend.game import Database
-from backend.game.Game import PlayerManager
-from backend.game.Plane import PlaneManager
 
 
 class Cargo:
@@ -46,23 +44,12 @@ class Contract:
 		return json.dumps(self.__dict__)
 
 class ContractManager:
-	def __init__(self, db:Database, plane_m: PlaneManager, player_m: PlayerManager):
+	def __init__(self, db:Database):
 		self.database = db
 		self.cargo_manager = CargoManager(db)
-		self.plane_m = plane_m
-		self.player_m = player_m
 
 	def generate_contract(self, username: str) -> Contract:
-		ap_type = "large_airport"
-		player = self.player_m.get_player(username)
-		"""if self.plane_m.get_plane_by_id(player.rented_plane).type=="helicopter":
-			ap_type = "heliport"
-		elif self.plane_m.get_plane_by_id(player.rented_plane).type=="cargo_plane":
-			ap_type = "large_airport"
-		elif self.plane_m.get_plane_by_id(player.rented_plane).type=="small_plane":
-			ap_type = "small_airport"
-		"""
-		airports = self.database.get_airports_by_distance(ap_type,2000,username,20)
+		airports = self.database.get_airports_by_distance("large_airport",2000,username,20)
 		print(airports[0])
 		cargo = self.cargo_manager.get_random_cargo(3)
 		cargo_value = 0

@@ -13,6 +13,7 @@ from backend.game.Contract import CargoManager, ContractManager
 from backend.game.Database import Database
 from backend.game.Game import PlayerManager
 from backend.game.Plane import PlaneManager
+
 app = Flask(__name__)
 CORS(app)
 
@@ -27,7 +28,7 @@ def get_airport_by_distance(amount, distance,name):
 
 @app.route("/api/airport/<icao>")
 def get_airport(icao:str):
-	airport = get_airports(icao)
+	airport = db_get_airport(icao)
 	if airport is None:
 		return Response(response=json.dumps({"code": 404, "text": f"Airport {icao} not found"}), status=404,
 		                mimetype="application/json")
@@ -43,11 +44,8 @@ def get_player(name: str):
 
 @app.route("/api/player/create/<name>")
 def create_player(name: str):
-	code = add_player_to_db(name)
-	#if code == 403:
-	#	return Response(response=json.dumps({"text":"Already Logged in"}), status=403, mimetype="application/json")
-	if code == 200:
-		return Response(response=json.dumps({"text":"Player created"}), status=200, mimetype="application/json")
+	add_player_to_db(name)
+	return Response(response=json.dumps({"text":"Player created"}), status=200, mimetype="application/json")
 
 @app.route("/api/player/update/<name>", methods=['GET',"POST"])
 def update_player(name: str):
@@ -58,7 +56,7 @@ def update_player(name: str):
 		print(e)
 		return Response(status=400,response=json.dumps({"text":"Bad Request, Check your payload"}), mimetype="application/json")
 
-	return Response(status=200, response=json.dumps(pm.get_player(name).__dict__), mimetype="application/json")
+	return Response(status=200, response=json.dumps({"text": "Player Updated"}), mimetype="application/json")
 
 
 @app.route("/api/plane/<plane_id>")
@@ -79,11 +77,11 @@ def get_contract(name):
 
 @app.route("/admin/api/players")
 def get_players():
-	players = pm.players()
+	players = get_players_from_db()
 	if players is None:
 		return Response(response=json.dumps({"code": 404, "text": f"Players not found"}), status=404,
 		                mimetype="application/json")
-	return Response(response=json.dumps({"players":players}), status=200, mimetype="application/json")
+	return Response(response=json.dumps(players), status=200, mimetype="application/json")
 
 @app.errorhandler(404)
 def page_not_found(errorcode):
@@ -108,18 +106,18 @@ connection = mysql.connector.connect(
 cursor = connection.cursor(dictionary=True)
 db = Database()
 planeManager = PlaneManager(db)
-pm = PlayerManager(db,planeManager)
+contractManager = ContractManager(db)
 
-contractManager = ContractManager(db,planeManager,pm)
-
-def get_airports(icao: str)->dict:
-	return db.get_airport(icao)
-
-def db_get_player(name: str)->dict:
-	return db.get_player_data(name)
+pm = PlayerManager(db)
 
 def get_players_from_db():
 	return db.fetch_data("game")
+
+def db_get_player(name):
+	return db.get_player_data(name)
+
+def db_get_airport(icao):
+	return db.get_airport(icao)
 
 def add_player_to_db(name) -> int:
 
@@ -134,11 +132,9 @@ def add_player_to_db(name) -> int:
 		print(add_data)
 		db.add_data([add_data], "game")
 		pm.login(name)
-		return 200
 	else:
-		if pm.login(name):
-			return 403
-		else: return 200
+		pm.login(name)
+
 
 def db_airports_by_distance(amount:int, distance:int,screen_name:str) -> list:
 	print(db_get_player(screen_name))
@@ -148,4 +144,3 @@ if __name__ == '__main__':
             host='127.0.0.1',
             port=3000,
             debug=True)
-
