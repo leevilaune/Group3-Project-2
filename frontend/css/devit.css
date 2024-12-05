@@ -1,0 +1,102 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(128, 128, 128, 0.44);
+}
+
+header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin: 0;
+}
+
+header .link-container {
+    display: flex;
+    width: 100%;
+}
+
+header a {
+    flex: 1;
+    text-decoration: none;
+    padding: 20px;
+    background-color: #3c3c3c;
+    color: white;
+    text-align: center;
+    font-size: 25px;
+}
+
+header a:first-child {
+    border-right: 1px solid white;
+}
+
+header a:hover {
+    background-color: rgba(255, 255, 255, 0.52);
+    cursor: pointer;
+    color: black;
+}
+
+header h1 {
+    text-align: center;
+    margin: 20px 0;
+    font-size: 4rem;
+    color: #333;
+}
+
+
+
+.team-section {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+    padding-top: 2rem ;
+}
+
+.team-member {
+    background-color: rgba(255, 255, 255, 0.3);
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    text-align: center;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transform-style: preserve-3d;
+}
+
+.team-member img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+}
+
+.team-member:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+.team-member h3 {
+    margin: 10px 0 5px;
+    font-size: 1.2em;
+    color: black;
+}
+
+.team-member p {
+    margin: 0 10px 15px;
+    font-size: 0.9em;
+    color: #282828;
+}
+
+footer {
+    text-align: center;
+    padding: 10px;
+   background-color: #3c3c3c;
+    color: #fff;
+    margin-top: auto;
+}

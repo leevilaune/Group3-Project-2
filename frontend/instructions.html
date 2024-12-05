@@ -7,68 +7,68 @@
     <meta name="author" content="Mehdi Zaidane">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <link rel="stylesheet" href="instructions.css">
+    <link rel="stylesheet" href="css/instructions.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
-          integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ=="
-          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+        integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
+
 <body>
-<header>
-    <h1>Header</h1>
-</header>
-<main>
 
-    <div class="container">
+    <header>
+        <a href="index.html">Back to game</a>
+        <a href="devit.html">Developers</a>
+    </header>
 
-        <div class="block">
-            <h1>Instructions</h1>
-            <p id="instructions-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquid, dicta esse ex
-                fugit
-                laboriosam
-                laudantium minima mollitia, neque officia repellendus tempore, voluptas? Dignissimos, ipsam nam
-                similique sunt tempora tempore vitae?. Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                Accusantium aliquam aperiam at, consectetur error et facere itaque iure modi nam nisi non numquam odio
-                reiciendis sed totam vero voluptates, voluptatum. Lorem ipsum dolor sit amet, consectetur adipisicing
-                elit. Assumenda delectus facere facilis id illo perspiciatis qui repellat repudiandae voluptas! Adipisci
-                blanditiis consequatur doloribus laborum, modi nesciunt quidem saepe suscipit tempore? Lorem ipsum dolor
-                sit amet, consectetur adipisicing elit. Accusamus accusantium aperiam assumenda autem dolor dolores
-                dolorum facere laudantium minus molestias qui quis quisquam repellendus sed soluta temporibus
-                voluptatem, voluptates voluptatum.</p>
-            <button class="scroll-button"><i class="fa-solid fa-chevron-down"></i></button>
-            <button class="scroll-up"><i class="fa-solid fa-chevron-up"></i></button>
+    <main>
+        <div class="container">
+            <div class="spinner">
+
+            </div>
+            <div class="block">
+                <h1>Story</h1>
+                <p id="story-text">The year is 2040. Technological development has radically changed the aviation
+                    industry,
+                    and air cargo transport has become an important part of the international economy.<br> You are a
+                    young and ambitious pilot
+                    who has founded your own transport company. Global companies and private customers trust you to
+                    transport
+                    urgent and valuable cargo, because your skills and efficiency are unmatched.<br>
+                    However, the world has changed. Climate conditions are more unpredictable, and airports compete with
+                    each other for favorable routes and airspace. Every journey is risky, and you are responsible for
+                    ensuring
+                    that important cargo shipments reach their destination safely and on time.<br>
+                    In the game, you are given different missions and cargo packages to transport. Every shipment can be
+                    critical: sometimes you're transporting a rare medicine, other times a hugely valuable piece of art
+                    or
+                    emergency aid packages to natural disaster areas.</p>
+                <button class="scroll-button"><i class="fa-solid fa-chevron-down"></i></button>
+                <button class="scroll-up"><i class="fa-solid fa-chevron-up"></i></button>
+            </div>
+            <div class="block">
+                <h1>Instructions</h1>
+                <p id="instructions-text">- In this game, you take on the role of a cargo plane pilot, responsible for
+                    managing the transportation of goods to various airports across the globe.<br><br>
+                    - At the start of the game, you will be presented with three different shipping contracts, each with
+                    unique requirements. You must carefully evaluate and select the contract that best suits your
+                    strategy.<br><br>
+                    - After choosing a contract, you can select and rent a cargo plane. Each plane has distinct
+                    characteristics, such as speed and fuel
+                    consumption.<br><br>
+                    - The primary goal is to successfully deliver packages while maintaining low carbon emissions and
+                    keeping time delays to a minimum.<br><br>
+                    - You lose the game if you cannot afford to rent a plane or refuel.<br><br>
+                    - You win when you achieve specific milestones, such as delivering a set number of packages,
+                    reaching a financial target, or completing an elite contract.</p>
+                <button class="scroll-button"><i class="fa-solid fa-chevron-down"></i></button>
+                <button class="scroll-up"><i class="fa-solid fa-chevron-up"></i></button>
+            </div>
         </div>
-        <div class="block">
-            <h1>Story</h1>
-            <p id="story-text">The year is 2040. Technological development has radically changed the aviation industry,
-                and
-                air cargo
-                transport has become an important part of the international economy. You are a young and ambitious pilot
-                who
-                has founded your own transport company. Global companies and private customers trust you to transport
-                urgent
-                and valuable cargo, because your skills and efficiency are unmatched.
-                However, the world has changed. Climate conditions are more unpredictable, and airports compete with
-                each
-                other for favorable routes and airspace. Every journey is risky, and you are responsible for ensuring
-                that
-                important cargo shipments reach their destination safely and on time.
-                In the game, you are given different missions and cargo packages to transport. Every shipment can be
-                critical: sometimes you're transporting a rare medicine, other times a hugely valuable piece of art or
-                emergency aid packages to natural disaster areas.</p>
-            <button class="scroll-button"><i class="fa-solid fa-chevron-down"></i></button>
-            <button class="scroll-up"><i class="fa-solid fa-chevron-up"></i></button>
 
-
-        </div>
-
-    </div>
-    <div class="spinner">
-
-    </div>
-</main>
-<footer>
-    <h1>Footer</h1>
-</footer>
+    </main>
+    <footer>
+        &copy; 2024 Development Team. All rights reserved.
+    </footer>
 </body>
 <script>
     const scrollDownButton = document.getElementsByClassName("scroll-button")
@@ -79,14 +79,14 @@
     for (let i = 0; i < scrollUpButton.length; i++) {
         if (scrollUpButton[i] === scrollUpButton[0]) {
             scrollUpButton[i].onclick = function () {
-                instructionsText.scrollBy({
+                storyText.scrollBy({
                     top: -80,
                     behavior: "smooth"
                 })
             }
         } else {
             scrollUpButton[i].onclick = function () {
-                storyText.scrollBy({
+                instructionsText.scrollBy({
                     top: -80,
                     behavior: "smooth"
                 })
@@ -97,20 +97,37 @@
     for (let i = 0; i < scrollDownButton.length; i++) {
         if (scrollDownButton[i] === scrollDownButton[0]) {
             scrollDownButton[i].onclick = function () {
-                instructionsText.scrollBy({
+                storyText.scrollBy({
                     top: 80,
                     behavior: "smooth"
                 })
             }
         } else {
             scrollDownButton[i].onclick = function () {
-                storyText.scrollBy({
+                instructionsText.scrollBy({
                     top: 80,
                     behavior: "smooth"
                 })
             }
         }
     }
+
+
+    const spinner = document.querySelector('.spinner');
+    const container = document.querySelectorAll(".block")
+    const header = document.querySelector("header")
+    const footer = document.querySelector("footer")
+
+
+    // Listen for the animationend event
+    spinner.addEventListener('animationend', () => {
+        spinner.style.display = 'none'; // Hides the spinner
+        for (const cont of container) {
+            cont.style.display = "block";
+        }
+        header.style.display = "flex"
+        footer.style.display = "block"
+    });
 
 </script>
 

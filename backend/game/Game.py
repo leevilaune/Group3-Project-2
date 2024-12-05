@@ -1,8 +1,9 @@
-from geopy.distance import distance
-
+# fmt: off
 from backend.game.Database import Database
-from backend.game.Plane import PlaneManager, Plane
 
+class Game:
+	def __init__(self, db:Database):
+		self.database = db
 
 class Player:
 	def __init__(self, json):
@@ -17,7 +18,6 @@ class Player:
 		self.current_day = json["current_day"]
 
 	def update(self, json:dict):
-		print(f"Updating {json} to db")
 		for key, value in json.items():
 			if hasattr(self, key) and value is not None:
 				setattr(self, key, value)
@@ -25,18 +25,21 @@ class Player:
 
 
 class PlayerManager:
-	def __init__(self, db:Database, plm: PlaneManager):
+	def __init__(self, db:Database):
 		self.db = db
 		self.players = []
-		self.game = Game(db,self,plm)
 
-	def login(self, screen_name:str) -> bool:
+		# get all the existing players from the database
+		players = self.db.fetch_data("game")
+		for player in players:
+			self.players.append(Player(player))
+
+	def login(self, screen_name:str):
 		"""
 		:param screen_name:
 		:return:
 		"""
-		if self.player_logged_in(screen_name):
-			return True
+
 		self.players.append(Player(self.db.get_player_data(screen_name)))
 
 	def logout(self, screen_name:str):
@@ -48,28 +51,13 @@ class PlayerManager:
 	def player_exists(self, screen_name: str) -> bool:
 		return self.db.user_exists_by_name(screen_name)
 
-	def player_logged_in(self, screen_name: str) -> bool:
-		for p in self.players:
-			if p.screen_name == screen_name:
-				return True
-
 	def get_player(self, screen_name:str) -> Player:
 		for p in self.players:
 			if p.screen_name == screen_name:
 				return p
 	def update_player(self, screen_name:str, json:dict):
 		player = self.get_player(screen_name)
-		old_location = player.location
-		new_location = player.location
-		if json.keys().__contains__("location"):
-			new_location = json["location"]
 		player.update(json)
-		if json.keys().__contains__("location"):
-			print(old_location, new_location)
-			if old_location != new_location:
-				print("updating location")
-				player.update(self.game.land(old_location, new_location, screen_name))
-		print(player.__dict__)
 		self.db.update_data([player.__dict__],"game","screen_name")
 		print("Committed to DB")
 		print(self.db.get_player_data(screen_name))
