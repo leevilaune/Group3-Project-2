@@ -15,12 +15,15 @@
 
 	<script src="js/map.js" defer></script>
 	<script src="js/main.js" defer></script>
+	<script src="js/dialog-box.js" defer></script>
 </head>
 
-<dialog>
-</dialog>
-
 <body>
+	<div id="dialog-box" class="clipboard-large" style="position:fixed; z-index: 2; height: 80vh; left: 5vh; transform: rotate(-5deg);">
+		<img src="img/interface/clipboard.png" style="width: auto; height: 100%; position: relative;">
+		<dialog style="position: relative; margin: 0; height: 66%; width: 46vh; padding: 1vh; left:9vh; top: 7.5vh; display: block; transform: rotate(-5deg);">
+		</dialog>
+	</div>
 	<div class="grid-container" style="position: absolute;">
 		<div class="grid-map">
 			<div style="width: 100%; z-index:0" id="map"></div>
@@ -56,9 +59,6 @@
 		<div class="grid-footer">
 			footer
 		</div>
-	</div>
-	<div class="clipboard-large" style="position:fixed;">
-		<img src="img/interface/clipboard.png" style="width: auto; height: 100vh;">
 	</div>
 </body>
 
