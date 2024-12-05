@@ -22,9 +22,10 @@ class Player:
 
 
 class PlayerManager:
-	def __init__(self, db:Database):
+	def __init__(self, db: Database, plm: PlaneManager):
 		self.db = db
 		self.players = []
+		self.game = Game(db, self, plm)
 
 		# get all the existing players from the database
 		players = self.db.fetch_data("game")
@@ -52,12 +53,24 @@ class PlayerManager:
 		for p in self.players:
 			if p.screen_name == screen_name:
 				return p
+
 	def update_player(self, screen_name:str, json:dict):
 		player = self.get_player(screen_name)
+		old_location = player.location
+		new_location = player.location
+		if json.keys().__contains__("location"):
+			new_location = json["location"]
 		player.update(json)
+		if json.keys().__contains__("location"):
+			print(old_location, new_location)
+			if old_location != new_location:
+				print("updating location")
+				player.update(self.game.land(old_location, new_location, screen_name))
+		print(player.__dict__)
 		self.db.update_data([player.__dict__],"game","screen_name")
 		print("Committed to DB")
 		print(self.db.get_player_data(screen_name))
+
 
 
 class Game:
