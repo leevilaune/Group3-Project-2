@@ -28,7 +28,7 @@ def get_airport_by_distance(amount, distance,name):
 
 @app.route("/api/airport/<icao>")
 def get_airport(icao:str):
-	airport = get_airports(icao)
+	airport = db_get_airport(icao)
 	if airport is None:
 		return Response(response=json.dumps({"code": 404, "text": f"Airport {icao} not found"}), status=404,
 		                mimetype="application/json")
@@ -109,36 +109,17 @@ planeManager = PlaneManager(db)
 contractManager = ContractManager(db)
 
 pm = PlayerManager(db)
-def get_airports(icao: str)->dict:
-	fetch_airport_sql = f"""
-	SELECT *
-    FROM airport
-    WHERE airport.ident = '{icao}'
-	"""
-	cursor.execute(fetch_airport_sql)
-	return cursor.fetchone()
-
-def get_player_data(name: str)->dict:
-	fetch_player_sql = f"""
-    SELECT *
-    FROM game
-    WHERE screen_name = '{name}'
-    """
-	cursor.execute(fetch_player_sql)
-	return cursor.fetchone()
-
-def get_static_data(table)->dict:
-	fetch_data_sql = f"""
-	SELECT *
-	FROM {table}
-	"""
-	cursor.execute(fetch_data_sql)
-	return cursor.fetchall()
 
 def get_players_from_db():
 	return db.fetch_data("game")
 
-def add_player_to_db(name):
+def db_get_player(name):
+	return db.get_player_data(name)
+
+def db_get_airport(icao):
+	return db.get_airport(icao)
+
+def add_player_to_db(name) -> int:
 
 	if pm.player_exists(name) is False:
 		add_data = {"co2_consumed": 0,
