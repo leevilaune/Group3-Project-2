@@ -49,7 +49,7 @@ class ContractManager:
 		self.cargo_manager = CargoManager(db)
 
 	def generate_contract(self, username: str) -> Contract:
-		airports = self.database.get_airports_by_distance("large_airport",1000,username,5)
+		airports = self.database.get_airports_by_distance("large_airport",2000,username,20)
 		print(airports[0])
 		cargo = self.cargo_manager.get_random_cargo(3)
 		cargo_value = 0
