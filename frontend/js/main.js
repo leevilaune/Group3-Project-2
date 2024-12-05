@@ -56,6 +56,7 @@ const loadGame = async () => {
         if (formData.get("username") != "") {
             const username = formData.get("username")
             player.data = await createAPICall("player", username)
+            console.log(player.data)
             if (player.data != undefined) {
                 // set coordinates to pan to (Helsinki)
 
@@ -140,7 +141,10 @@ function nameInput() {
 }
 
 const updateGame = async () => {
+    console.log("Before update",player.data)
     player.data = await createAPIPostCall("player/update", player.data.screen_name, player.data)
+    console.log("After update",player.data)
+
     console.log(player.data)
 
     // check if the game is over
@@ -475,6 +479,7 @@ const createAPIPostCall = async (api_endpoint, id, data) => {
         if (response.ok) {
             console.log("promise resolved and HTTP status is succesful")
             const json_response = await response.json()
+            console.log("JSON response",json_response)
             return json_response
         } else {
             const json_response = await response.json()

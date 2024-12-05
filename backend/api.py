@@ -57,7 +57,7 @@ def update_player(name: str):
 	except Exception as e:
 		print(e)
 		return Response(status=400,response=json.dumps({"text":"Bad Request, Check your payload"}), mimetype="application/json")
-
+	print(f"Player data before return{pm.get_player(name).__dict__}")
 	return Response(status=200, response=json.dumps(pm.get_player(name).__dict__), mimetype="application/json")
 
 
@@ -122,16 +122,17 @@ def get_players_from_db():
 	return db.fetch_data("game")
 
 def add_player_to_db(name) -> int:
-
+	print(f"Player {name} exists {db.user_exists_by_name(name)}")
 	if pm.player_exists(name) is False:
 		add_data = {"co2_consumed": 0,
 		            "co2_budget": 20000,
 		            "currency": 100000,
 		            "location": "EFHK",
-		            "fuel_amount": 69420,
-		            "current_day": 0,
+		            "fuel_amount": 100000,
+		            "current_day": 0.0,
+		            "rented_plane":1,
 		            "screen_name": name}
-		print(add_data)
+		print(f"add data: {add_data}")
 		db.add_data([add_data], "game")
 		pm.login(name)
 		return 200

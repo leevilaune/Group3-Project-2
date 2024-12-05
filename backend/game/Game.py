@@ -15,9 +15,13 @@ class Player:
 		self.current_day = json["current_day"]
 
 	def update(self, json:dict):
+		print(json)
 		for key, value in json.items():
 			if hasattr(self, key) and value is not None:
+				print(getattr(self, key), key)
 				setattr(self, key, value)
+				print(getattr(self, key))
+
 		print(self.__dict__)
 
 
@@ -60,13 +64,16 @@ class PlayerManager:
 		new_location = player.location
 		if json.keys().__contains__("location"):
 			new_location = json["location"]
+		update_data = self.game.land(old_location, new_location, screen_name)
+		json["current_day"] = update_data["current_day"]
+		json["fuel_amount"] = update_data["fuel_amount"]
 		player.update(json)
 		if json.keys().__contains__("location"):
 			print(old_location, new_location)
 			if old_location != new_location:
 				print("updating location")
 				player.update(self.game.land(old_location, new_location, screen_name))
-		print(player.__dict__)
+		print(f"Player data before db update{player.__dict__}")
 		self.db.update_data([player.__dict__],"game","screen_name")
 		print("Committed to DB")
 		print(self.db.get_player_data(screen_name))
