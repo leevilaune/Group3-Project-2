@@ -58,7 +58,6 @@ def update_player(name: str):
 
 	return Response(status=200, response=json.dumps({"text": "Player Updated"}), mimetype="application/json")
 
-
 @app.route("/api/plane/<plane_id>")
 def get_plane(plane_id:int):
 	plane = planeManager.get_plane_by_id(int(plane_id))
