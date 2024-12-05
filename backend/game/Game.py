@@ -107,7 +107,6 @@ class Game:
 		print(player.current_day)
 		current_day = player.current_day + (time / 1440)
 		print(current_day)
-
 		update = {
 			"current_day":current_day,
 			"fuel_amount":fuel_amount,
