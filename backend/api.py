@@ -112,8 +112,15 @@ pm = PlayerManager(db,planeManager)
 
 contractManager = ContractManager(db,planeManager,pm)
 
+def get_airports(icao: str)->dict:
+	return db.get_airport(icao)
+
+def db_get_player(name: str)->dict:
+	return db.get_player_data(name)
+
 def get_players_from_db():
 	return db.fetch_data("game")
+
 
 def add_player_to_db(name) -> int:
 
