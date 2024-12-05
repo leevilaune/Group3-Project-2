@@ -151,7 +151,6 @@ class Database:
 		"""
 
 		current_airport = self.get_current_airport(user)
-		distance *= 10
 		# some sql voodoo to get all airports in a radius
 		sql_get_airports_in_distance = f"""
             SELECT country.name as country, airport.name as airport, ident, latitude_deg, longitude_deg,
