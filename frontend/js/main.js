@@ -9,32 +9,41 @@ import { createAPICall, createAPIPostCall, fetchTable } from "./modules/apiCalls
 //3 plane options
 //random encounter
 //
-let playerData = null
+let player = { data: null, contract: null }
 
 let gameRunning = false
 
 let markerLayer = L.layerGroup()
 
+
 const dialog = document.querySelector("dialog")
-dialog.innerHTML = `
+
+const startDialog = () => {
+
+    dialog.innerHTML = `
 <h2 id="new game">New game</h2>
 <h2 id="load game">Load game</h2>
 <h2><a style="text-decoration: none; color: black" href="instructions.html">Instructions</a></h2>
 <h2><a style="text-decoration: none; color: black" href="devit.html">Credits</a></h2>`
-dialog.showModal()
+    dialog.showModal()
 
-const h2s = dialog.querySelectorAll("h2")
+    const h2s = dialog.querySelectorAll("h2")
 
-for (let h2 of h2s) {
-    h2.addEventListener("click", function() {
-        if (h2.id === "new game") {
-            nameInput()
-        } else if (h2.id === "load game") {
-            loadGame()
-            console.log("load game pressed")
-        }
-    })
+    for (let h2 of h2s) {
+        h2.addEventListener("click", function() {
+            if (h2.id === "new game") {
+                nameInput()
+            } else if (h2.id === "load game") {
+                loadGame()
+                console.log("load game pressed")
+            }
+        })
+    }
+
 }
+
+
+startDialog()
 
 const loadGame = async () => {
     const form = inputPopup()
@@ -48,13 +57,13 @@ const loadGame = async () => {
         // add event listener to get the player data from database
         if (formData.get("username") != "") {
             const username = formData.get("username")
-            playerData = await createAPICall("player", username)
-            if (playerData != undefined) {
+            player.data = await createAPICall("player", username)
+            if (player.data != undefined) {
                 // set coordinates to pan to (Helsinki)
 
                 // set player data to the player card element
                 document.querySelector(".id-grid-name").innerText = username
-                document.querySelector(".id-grid-currency").innerText = playerData.currency
+                document.querySelector(".id-grid-currency").innerText = player.data.currency
 
                 dialog.innerHTML = ""
                 dialog.close()
@@ -106,13 +115,13 @@ function nameInput() {
         if (formData.get("username") != "") {
             const username = formData.get("username")
             console.log(await createAPICall("player/create", username))
-            playerData = await createAPICall("player", username)
+            player.data = await createAPICall("player", username)
 
             // set coordinates to pan to (Helsinki)
 
             // set player data to the player card element
             document.querySelector(".id-grid-name").innerText = username
-            document.querySelector(".id-grid-currency").innerText = playerData.currency
+            document.querySelector(".id-grid-currency").innerText = player.data.currency
 
             dialog.innerHTML = ""
             dialog.close()
@@ -132,6 +141,23 @@ function nameInput() {
     })
 }
 
+const updateGame = async () => {
+    player.data = await createAPIPostCall("player/update", player.data.screen_name, player.data)
+    console.log(player.data)
+
+    // check if the game is over
+    if (player.data.currency <= 0 || player.data.fuel_amount <= 0) {
+        console.log("GAME OVER!")
+        dialog.innerHTML = ""
+        dialog.innerText = "GAME OVER! you ran out of resources!"
+        dialog.showModal()
+
+        setTimeout(() => {
+            // what a time to be alive
+            location.reload()
+        }, 2000)
+    }
+}
 
 async function flyTo() {
     console.log(this.data)
@@ -140,16 +166,16 @@ async function flyTo() {
     // remove markers somehow
     // generate new markers for close airports (put the code that generated it earlier in function probably)
     // update player data
-    playerData.location = this.data.airport.ident
+    player.data.location = this.data.airport.ident
 
-    if (playerData.location == playerData.contract.airport.ident) {
-        playerData.currency += playerData.contract.delivery_value
+    if (player.data.location == player.contract.airport.ident) {
+        player.data.currency += player.contract.delivery_value
         await getContracts()
     }
 
-    // send data to backend when we hit the contract probably
-    await createAPIPostCall("player/update", playerData.screen_name, playerData)
+    await updateGame()
 
+    // send data to backend when we hit the contract probably
     await updateMarkers()
 
     // remove the marker from the layer // maybe only ones that are certain distance away or somehitn
@@ -163,9 +189,9 @@ async function selectPlane() {
     const listItems = this.parentNode.querySelectorAll("li")
     listItems.forEach((item) => item.removeEventListener('click', selectPlane))
 
-    playerData.rented_plane = this.data.id
+    player.data.rented_plane = this.data.id
 
-    await createAPIPostCall("player/update", playerData.screen_name, playerData)
+    await updateGame()
 
     dialog.close()
     dialog.innerText = ""
@@ -202,9 +228,9 @@ const getPlanes = async () => {
 
 async function selectContract() {
     console.log(this)
-    playerData.contract = this.data
+    player.contract = this.data
 
-    console.log(playerData.contract)
+    console.log(player.contract)
 
     const listItems = this.parentNode.querySelectorAll("li")
     listItems.forEach((item) => item.removeEventListener('click', selectContract))
@@ -230,16 +256,16 @@ const getContracts = async () => {
 
     dialog.innerHTML = itemList
 
-    await createAPIPostCall("player/update", playerData.screen_name, playerData)
+    await createAPIPostCall("player/update", player.data.screen_name, player.data)
 
     const contractList = dialog.querySelector("#item-list")
 
     // testi pelaajan location
-    const currentAirport = await createAPICall("airport", playerData.location)
+    const currentAirport = await createAPICall("airport", player.data.location)
     console.log(currentAirport)
     const playerLatLng = L.latLng(currentAirport.latitude_deg, currentAirport.longitude_deg)  // esim helsinki koordinaatit
 
-    const contracts = await createAPICall("contract", playerData.screen_name)
+    const contracts = await createAPICall("contract", player.data.screen_name)
     console.log(contracts)
 
     for (const contr of contracts.cargo) {
@@ -315,25 +341,25 @@ const getContracts = async () => {
 
 const updateMarkers = async () => {
     // add markers and attach data to them
-    const airportsClose = await createAPICall("airport/bydistance/1000/10", playerData.screen_name)
+    const airportsClose = await createAPICall("airport/bydistance/1000/10", player.data.screen_name)
     for (const airport of airportsClose) {
         let draw = true
         // this is really bad it always goes through every layer fix if time left
         // go through all the layers(markers) and check if it already exists
         markerLayer.eachLayer((layer) => {
-            if (layer.data.airport.ident != playerData.contract.airport.ident) {
+            if (layer.data.airport.ident != player.contract.airport.ident) {
                 layer.setStyle({ fillColor: "#3388ff", color: "#3388ff" })
             }
             if (layer.data.airport.ident == airport.ident) {
                 draw = false;
             }
-            if (layer.data.airport.ident == playerData.location) {
+            if (layer.data.airport.ident == player.data.location) {
                 layer.setStyle({ fillColor: "green", color: "green" })
                 //console.log("changing color of " + layer.data.airport.ident)
             }
         })
         // draw markers that are not already drawn
-        if ((airport.ident != playerData.contract.airport.ident) && draw) {
+        if ((airport.ident != player.contract.airport.ident) && draw) {
             let latlng = L.latLng(airport.latitude_deg, airport.longitude_deg)
             let marker = L.circleMarker(latlng)
             marker.setStyle({ fillColor: "#3388ff", color: "#3388ff" })
@@ -351,10 +377,10 @@ const updateMarkers = async () => {
 const setupGame = async () => {
     gameRunning = true
     console.log("game is running")
-    console.log(playerData)
+    console.log(player)
 
     // testi pelaajan location
-    const currentAirport = await createAPICall("airport", playerData.location)
+    const currentAirport = await createAPICall("airport", player.data.location)
     console.log(currentAirport)
     const playerLatLng = L.latLng(currentAirport.latitude_deg, currentAirport.longitude_deg)  // esim helsinki koordinaatit
     // player
