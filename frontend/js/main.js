@@ -142,6 +142,11 @@ const updateGame = async () => {
     player.data = await createAPIPostCall("player/update", player.data.screen_name, player.data)
     console.log("After update", player.data)
 
+    // return weather from the weather api
+    // show it somewhere
+    const weather = await createAPICall("weather", player.data.location)
+    console.log(weather)
+
     if (Math.floor(player.data.current_day) != 0) {
         player.data.currency -= player.plane.data.price
     }
@@ -173,6 +178,7 @@ async function flyTo() {
         player.data.currency += player.contract.delivery_value
         await getContracts()
     }
+
 
     // update game data
     await updateGame()
