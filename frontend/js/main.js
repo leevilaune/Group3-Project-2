@@ -7,6 +7,37 @@
 //3 plane options
 //random encounter
 //
+const planeIcon = L.icon({
+    iconUrl: 'plane-icon.png',
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+    popupAnchor: [0, -16]
+})
+
+const animatePlane = (startLatLng, endLatLng, duration) => {
+    const planeMarker = L.marker(startLatLng, { icon: planeIcon }).addTo(map);
+
+    const steps = 100;
+    const stepDelay = duration / steps;
+    let step = 0;
+
+    const movePlane = () => {
+        if (step<steps) {
+            const lat = startLatLng.lat + ((endLatLng.lat - startLatLng.lat) * (step / steps));
+            const lng = startLatLng.lng + ((endLatLng.lng - startLatLng.lng) * (step / steps));
+
+            planeMarker.setLatLng([lat, lng]);
+
+            step++
+            setTimeout(movePlane, stepDelay)
+        }else {
+            console.log("Animation complete")
+            }
+
+    }
+    movePlane()
+}
+
 let player = { data: null, contract: null }
 
 let gameRunning = false
@@ -161,8 +192,20 @@ const updateGame = async () => {
     }
 }
 
+let planeMarker;
+
 async function flyTo() {
     console.log(this.data)
+    if (planeMarker) {
+        markerLayer.removeLayer(planeMarker)
+    }
+    const currentAirport = await createAPICall("airport", player.data.location);
+    const startLatLng = L.latLng(currentAirport.latitude_deg, currentAirport.longitude_deg);
+    const endLatLng = L.latLng(this.data.airport.latitude_deg, this.data.airport.longitude_deg);
+    const duration = 2;
+
+    planeMarker = L.marker(startLatLng, { icon: planeIcon }).addTo(map);
+    animatePlane(startLatLng, endLatLng, duration);
     map.panTo(L.latLng(this.data.airport.latitude_deg, this.data.airport.longitude_deg))
     // check if this airport is the one in the contract
     // remove markers somehow
@@ -181,7 +224,7 @@ async function flyTo() {
     await updateMarkers()
 
     // remove the marker from the layer // maybe only ones that are certain distance away or somehitn
-    //markerLayer.removeLayer(this)
+    markerLayer.removeLayer(planeMarker)
 }
 
 async function selectPlane() {
