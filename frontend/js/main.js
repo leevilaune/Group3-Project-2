@@ -1,6 +1,6 @@
 'use strict'
 
-let player = { data: null, contract: null }
+const player = { data: null, contract: null }
 
 let gameRunning = false
 
@@ -47,8 +47,13 @@ const loadGame = async () => {
         // add event listener to get the player data from database
         if (formData.get("username") != "") {
             const username = formData.get("username")
+
             player.data = await createAPICall("player", username)
-            console.log(player.data)
+            player.plane = { data: null }
+            player.plane.data = await createAPICall("plane", player.data.rented_plane)
+            player.plane.data.price = parseInt(player.plane.data.fuel_consumption) + parseInt(player.plane.data.max_speed) * 50
+
+            console.log(`player initialized with: ${JSON.stringify(player)}`)
             if (player.data != undefined) {
                 // set coordinates to pan to (Helsinki)
 
@@ -137,8 +142,9 @@ const updateGame = async () => {
     player.data = await createAPIPostCall("player/update", player.data.screen_name, player.data)
     console.log("After update", player.data)
 
-    console.log(player.data)
-
+    if (Math.floor(player.data.current_day) != 0) {
+        player.data.currency -= player.plane.data.price
+    }
     // check if the game is over
     if (player.data.currency <= 0 || player.data.fuel_amount <= 0) {
         console.log("GAME OVER!")
