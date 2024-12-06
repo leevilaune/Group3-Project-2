@@ -1,18 +1,10 @@
 'use strict'
 
-//apilta palautukseen:
-//weather data
-//player/game data
-//list of possible contracts
-//3 plane options
-//random encounter
-//
 let player = { data: null, contract: null }
 
 let gameRunning = false
 
 let markerLayer = L.layerGroup()
-
 
 const dialog = document.querySelector("dialog")
 
@@ -40,7 +32,7 @@ const startDialog = () => {
 
 }
 
-
+// get the main menu here
 startDialog()
 
 const loadGame = async () => {
@@ -141,9 +133,9 @@ function nameInput() {
 }
 
 const updateGame = async () => {
-    console.log("Before update",player.data)
+    console.log("Before update", player.data)
     player.data = await createAPIPostCall("player/update", player.data.screen_name, player.data)
-    console.log("After update",player.data)
+    console.log("After update", player.data)
 
     console.log(player.data)
 
@@ -170,11 +162,13 @@ async function flyTo() {
     // update player data
     player.data.location = this.data.airport.ident
 
+    // update currency if we hit the contract airport
     if (player.data.location == player.contract.airport.ident) {
         player.data.currency += player.contract.delivery_value
         await getContracts()
     }
 
+    // update game data
     await updateGame()
 
     // send data to backend when we hit the contract probably
@@ -191,12 +185,15 @@ async function selectPlane() {
     const listItems = this.parentNode.querySelectorAll("li")
     listItems.forEach((item) => item.removeEventListener('click', selectPlane))
 
+    // update and add plane to the player object
     player.plane = this
     player.data.rented_plane = this.data.id
     player.data.currency -= this.data.price
 
+    // update game data
     await updateGame()
 
+    // close dialog and empty it
     dialog.close()
     dialog.innerText = ""
 
@@ -479,31 +476,7 @@ const createAPIPostCall = async (api_endpoint, id, data) => {
         if (response.ok) {
             console.log("promise resolved and HTTP status is succesful")
             const json_response = await response.json()
-            console.log("JSON response",json_response)
-            return json_response
-        } else {
-            const json_response = await response.json()
-            // json_response still needs to get processed
-            console.log(json_response.text)
-        }
-    } catch (error) {
-        console.error("promise rejected: " + error)
-    }
-}
-
-const fetchTable = async (table) => {
-    const fetchOptions = {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-        }
-    }
-    const url = "http://127.0.0.1:3000/api/"
-    try {
-        const response = await fetch(url + table, fetchOptions)
-        if (response.ok) {
-            console.log("promise resolved and HTTP status is succesful")
-            const json_response = await response.json()
+            console.log("JSON response", json_response)
             return json_response
         } else {
             const json_response = await response.json()
