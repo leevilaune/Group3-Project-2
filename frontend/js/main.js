@@ -14,15 +14,15 @@ const planeIcon = L.icon({
     popupAnchor: [0, -16]
 })
 
-const animatePlane = (startLatLng, endLatLng, duration) => {
-    const planeMarker = L.marker(startLatLng, { icon: planeIcon }).addTo(map);
+let planeMarker = null;
 
+const animatePlane = (startLatLng, endLatLng, duration) => {
     const steps = 100;
     const stepDelay = duration / steps;
     let step = 0;
 
     const movePlane = () => {
-        if (step<steps) {
+        if (step < steps) {
             const lat = startLatLng.lat + ((endLatLng.lat - startLatLng.lat) * (step / steps));
             const lng = startLatLng.lng + ((endLatLng.lng - startLatLng.lng) * (step / steps));
 
@@ -30,9 +30,9 @@ const animatePlane = (startLatLng, endLatLng, duration) => {
 
             step++
             setTimeout(movePlane, stepDelay)
-        }else {
+        } else {
             console.log("Animation complete")
-            }
+        }
 
     }
     movePlane()
@@ -172,9 +172,9 @@ function nameInput() {
 }
 
 const updateGame = async () => {
-    console.log("Before update",player.data)
+    console.log("Before update", player.data)
     player.data = await createAPIPostCall("player/update", player.data.screen_name, player.data)
-    console.log("After update",player.data)
+    console.log("After update", player.data)
 
     console.log(player.data)
 
@@ -192,19 +192,19 @@ const updateGame = async () => {
     }
 }
 
-let planeMarker;
 
 async function flyTo() {
     console.log(this.data)
-    if (planeMarker) {
-        markerLayer.removeLayer(planeMarker)
-    }
+
     const currentAirport = await createAPICall("airport", player.data.location);
     const startLatLng = L.latLng(currentAirport.latitude_deg, currentAirport.longitude_deg);
     const endLatLng = L.latLng(this.data.airport.latitude_deg, this.data.airport.longitude_deg);
     const duration = 2;
 
-    planeMarker = L.marker(startLatLng, { icon: planeIcon }).addTo(map);
+    if (!planeMarker) {
+        planeMarker = L.marker(startLatLng, { icon: planeIcon }).addTo(map);
+    }
+
     animatePlane(startLatLng, endLatLng, duration);
     map.panTo(L.latLng(this.data.airport.latitude_deg, this.data.airport.longitude_deg))
     // check if this airport is the one in the contract
@@ -522,7 +522,7 @@ const createAPIPostCall = async (api_endpoint, id, data) => {
         if (response.ok) {
             console.log("promise resolved and HTTP status is succesful")
             const json_response = await response.json()
-            console.log("JSON response",json_response)
+            console.log("JSON response", json_response)
             return json_response
         } else {
             const json_response = await response.json()
