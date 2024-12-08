@@ -39,11 +39,11 @@ const animatePlane = (startLatLng, endLatLng, duration) => {
 }
 
 let player = { data: null, contract: null }
+const player = { data: null, contract: null }
 
 let gameRunning = false
 
 let markerLayer = L.layerGroup()
-
 
 const dialog = document.querySelector("dialog")
 
@@ -71,7 +71,7 @@ const startDialog = () => {
 
 }
 
-
+// get the main menu here
 startDialog()
 
 const loadGame = async () => {
@@ -86,8 +86,13 @@ const loadGame = async () => {
         // add event listener to get the player data from database
         if (formData.get("username") != "") {
             const username = formData.get("username")
+
             player.data = await createAPICall("player", username)
-            console.log(player.data)
+            player.plane = { data: null }
+            player.plane.data = await createAPICall("plane", player.data.rented_plane)
+            player.plane.data.price = parseInt(player.plane.data.fuel_consumption) + parseInt(player.plane.data.max_speed) * 50
+
+            console.log(`player initialized with: ${JSON.stringify(player)}`)
             if (player.data != undefined) {
                 // set coordinates to pan to (Helsinki)
 
@@ -176,8 +181,14 @@ const updateGame = async () => {
     player.data = await createAPIPostCall("player/update", player.data.screen_name, player.data)
     console.log("After update", player.data)
 
-    console.log(player.data)
+    // return weather from the weather api
+    // show it somewhere
+    const weather = await createAPICall("weather", player.data.location)
+    console.log(weather)
 
+    if (Math.floor(player.data.current_day) != 0) {
+        player.data.currency -= player.plane.data.price
+    }
     // check if the game is over
     if (player.data.currency <= 0 || player.data.fuel_amount <= 0) {
         console.log("GAME OVER!")
@@ -191,7 +202,6 @@ const updateGame = async () => {
         }, 2000)
     }
 }
-
 
 async function flyTo() {
     console.log(this.data)
@@ -213,11 +223,14 @@ async function flyTo() {
     // update player data
     player.data.location = this.data.airport.ident
 
+    // update currency if we hit the contract airport
     if (player.data.location == player.contract.airport.ident) {
         player.data.currency += player.contract.delivery_value
         await getContracts()
     }
 
+
+    // update game data
     await updateGame()
 
     // send data to backend when we hit the contract probably
@@ -234,12 +247,15 @@ async function selectPlane() {
     const listItems = this.parentNode.querySelectorAll("li")
     listItems.forEach((item) => item.removeEventListener('click', selectPlane))
 
+    // update and add plane to the player object
     player.plane = this
     player.data.rented_plane = this.data.id
     player.data.currency -= this.data.price
 
+    // update game data
     await updateGame()
 
+    // close dialog and empty it
     dialog.close()
     dialog.innerText = ""
 
@@ -523,30 +539,6 @@ const createAPIPostCall = async (api_endpoint, id, data) => {
             console.log("promise resolved and HTTP status is succesful")
             const json_response = await response.json()
             console.log("JSON response", json_response)
-            return json_response
-        } else {
-            const json_response = await response.json()
-            // json_response still needs to get processed
-            console.log(json_response.text)
-        }
-    } catch (error) {
-        console.error("promise rejected: " + error)
-    }
-}
-
-const fetchTable = async (table) => {
-    const fetchOptions = {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-        }
-    }
-    const url = "http://127.0.0.1:3000/api/"
-    try {
-        const response = await fetch(url + table, fetchOptions)
-        if (response.ok) {
-            console.log("promise resolved and HTTP status is succesful")
-            const json_response = await response.json()
             return json_response
         } else {
             const json_response = await response.json()

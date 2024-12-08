@@ -1,5 +1,6 @@
 # setting off formatting for neovim for this file
 # fmt: off
+import requests
 from pyexpat import native_encoding
 
 from flask import Flask, Response, request
@@ -85,6 +86,14 @@ def get_players():
 		                mimetype="application/json")
 	return Response(response=json.dumps({"players":players}), status=200, mimetype="application/json")
 
+@app.route("/api/weather/<icao>")
+def get_weather(icao: str):
+	airport = get_airports(icao)
+	res = requests.get(f"https://api.openweathermap.org/data/2.5/weather?lat={airport['latitude_deg']}&lon={airport['longitude_deg']}&appid={apiKey}")
+	if res.status_code == 200:
+		return Response(response=json.dumps(res.json()), status=res.status_code, mimetype="application/json")
+	return Response(status=404)
+
 @app.errorhandler(404)
 def page_not_found(errorcode):
 	error = {
@@ -105,6 +114,8 @@ connection = mysql.connector.connect(
     password=database["password"],
     autocommit=True,
     buffered=True)
+# get the weatherapi key from the json file
+apiKey = database["weatherAPI_key"]
 cursor = connection.cursor(dictionary=True)
 db = Database()
 planeManager = PlaneManager(db)
@@ -149,4 +160,3 @@ if __name__ == '__main__':
             host='127.0.0.1',
             port=3000,
             debug=True)
-
