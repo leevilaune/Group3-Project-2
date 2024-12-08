@@ -10,7 +10,7 @@
 const planeIcon = (bearing) => L.divIcon({
     className: 'plane-icon',
     html: `<div style="transform: rotate(${bearing}deg);">
-               <img src="plane-icon.png" style="width: 32px; height: 32px;" />
+               <img src="img/interface/plane-icon.png" style="width: 32px; height: 32px;" />
            </div>`,
     iconSize: [32, 32],
     iconAnchor: [16, 16],
