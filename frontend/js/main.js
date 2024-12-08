@@ -34,26 +34,29 @@ const animatePlane = (startLatLng, endLatLng, duration) => {
         const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(deltaLon);
         const bearing = Math.atan2(y, x) * 180 / Math.PI;
 
-        return (bearing + 360) % 360;
+        return (bearing + 360) % 360; // Normalize to 0-360
     }
 
-    const movePlane = () => {
-        if (step < steps) {
-            const lat = startLatLng.lat + ((endLatLng.lat - startLatLng.lat) * (step / steps));
-            const lng = startLatLng.lng + ((endLatLng.lng - startLatLng.lng) * (step / steps));
 
-            planeMarker.setLatLng([lat, lng]);
+const movePlane = () => {
+    if (step < steps) {
+        const lat = startLatLng.lat + ((endLatLng.lat - startLatLng.lat) * (step / steps));
+        const lng = startLatLng.lng + ((endLatLng.lng - startLatLng.lng) * (step / steps));
+        const currentLatLng = { lat, lng };
 
-            const bearing = calculateBearing([lat, lng], endLatLng);
-            planeMarker.setIcon(planeIcon(bearing));
+        planeMarker.setLatLng(currentLatLng);
 
-            step++
-            setTimeout(movePlane, stepDelay)
-        } else {
-            console.log("Animation complete")
-        }
+        const bearing = calculateBearing(currentLatLng, endLatLng);
+        console.log(`Step ${step}, Bearing: ${bearing}`); // Debug log
+        planeMarker.setIcon(planeIcon(bearing));
 
+        step++;
+        setTimeout(movePlane, stepDelay);
+    } else {
+        console.log("Animation complete");
     }
+};
+
     movePlane()
 }
 
