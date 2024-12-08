@@ -1,5 +1,66 @@
 'use strict'
 
+//apilta palautukseen:
+//weather data
+//player/game data
+//list of possible contracts
+//3 plane options
+//random encounter
+//
+const planeIcon = (bearing) => L.divIcon({
+    className: 'plane-icon',
+    html: `<div style="transform: rotate(${bearing}deg);">
+               <img src="img/interface/plane-icon.png" style="width: 32px; height: 32px;" />
+           </div>`,
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+})
+
+let planeMarker = null;
+
+const animatePlane = (startLatLng, endLatLng, duration) => {
+    const steps = 100;
+    const stepDelay = duration / steps;
+    let step = 0;
+
+    const calculateBearing = (start, end) => {
+        const lat1 = start.lat * Math.PI / 180;
+        const lon1 = start.lng * Math.PI / 180;
+        const lat2 = end.lat * Math.PI / 180;
+        const lon2 = end.lng * Math.PI / 180;
+
+        const deltaLon = lon2 - lon1;
+        const y = Math.sin(deltaLon) * Math.cos(lat2);
+        const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(deltaLon);
+        const bearing = Math.atan2(y, x) * 180 / Math.PI;
+
+        const planeOffset = -45;
+        return (bearing + planeOffset + 360) % 360;
+    }
+
+
+const movePlane = () => {
+    if (step < steps) {
+        const lat = startLatLng.lat + ((endLatLng.lat - startLatLng.lat) * (step / steps));
+        const lng = startLatLng.lng + ((endLatLng.lng - startLatLng.lng) * (step / steps));
+        const currentLatLng = { lat, lng };
+
+        planeMarker.setLatLng(currentLatLng);
+
+        const bearing = calculateBearing(currentLatLng, endLatLng);
+        console.log(`Step ${step}, Bearing: ${bearing}`);
+        planeMarker.setIcon(planeIcon(bearing));
+
+        step++;
+        setTimeout(movePlane, stepDelay);
+    } else {
+        console.log("Animation complete");
+    }
+}
+
+    movePlane()
+}
+
 const player = { data: null, contract: null }
 
 let gameRunning = false
@@ -166,6 +227,20 @@ const updateGame = async () => {
 
 async function flyTo() {
     console.log(this.data)
+
+    const currentAirport = await createAPICall("airport", player.data.location);
+    const startLatLng = L.latLng(currentAirport.latitude_deg, currentAirport.longitude_deg);
+    const endLatLng = L.latLng(this.data.airport.latitude_deg, this.data.airport.longitude_deg);
+    const duration = 2;
+
+    if (!planeMarker) {
+        planeMarker = L.marker(startLatLng, {
+            icon: planeIcon(0),
+            className: 'rotatable-icon'
+        }).addTo(map);
+    }
+
+    animatePlane(startLatLng, endLatLng, duration);
     map.panTo(L.latLng(this.data.airport.latitude_deg, this.data.airport.longitude_deg))
     // check if this airport is the one in the contract
     // remove markers somehow
@@ -187,7 +262,7 @@ async function flyTo() {
     await updateMarkers()
 
     // remove the marker from the layer // maybe only ones that are certain distance away or somehitn
-    //markerLayer.removeLayer(this)
+    markerLayer.removeLayer(planeMarker)
 }
 
 async function selectPlane() {
@@ -353,7 +428,7 @@ const getContracts = async () => {
             tooltip.innerHTML = `Destination: ${randomAirport.airport}<br>
 					Country: ${randomAirport.country}<br>
 					Reward: $${contract.data.delivery_value}<br>
-					Distance: ${distanceInKilometers} Kilometers
+					Distance: ${distanceInKilometers} Km
 				`
             tooltip.style.display = 'block'
 
