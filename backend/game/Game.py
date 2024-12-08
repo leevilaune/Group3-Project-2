@@ -1,6 +1,8 @@
+# fmt: off
 from geopy.distance import distance
 from backend.game.Plane import PlaneManager
 from backend.game.Database import Database
+import random
 
 class Player:
 	def __init__(self, json):
@@ -108,6 +110,10 @@ class Game:
 		dist = self.calculate_distance(from_icao,to_icao)
 		plane = self.plm.get_plane_by_id(self.pm.get_player(screen_name).rented_plane)
 		fuel_amount = player.fuel_amount - self.calculate_spent_fuel(dist,screen_name)
+
+		# refilling a random amount every landing
+		fuel_amount += random.randint(200, 1000)
+
 		time = dist/plane.max_speed * 60
 		print(player.current_day)
 		current_day = player.current_day + (time / 1440)
