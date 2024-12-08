@@ -21,12 +21,37 @@ const animatePlane = (startLatLng, endLatLng, duration) => {
     const stepDelay = duration / steps;
     let step = 0;
 
+    const calculateBearing = (start, end) => {
+        const lat1 = start.lat * Math.PI / 180;
+        const lon1 = start.lng * Math.PI / 180;
+        const lat2 = end.lat * Math.PI / 180;
+        const lon2 = end.lng * Math.PI / 180;
+
+        const deltaLon = lon2 - lon1;
+        const y = Math.sin(deltaLon) * Math.cos(lat2);
+        const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(deltaLon);
+        const bearing = Math.atan2(y, x) * 180 / Math.PI;
+
+        return (bearing + 360) % 360;
+    }
+
     const movePlane = () => {
         if (step < steps) {
             const lat = startLatLng.lat + ((endLatLng.lat - startLatLng.lat) * (step / steps));
             const lng = startLatLng.lng + ((endLatLng.lng - startLatLng.lng) * (step / steps));
 
             planeMarker.setLatLng([lat, lng]);
+
+            const bearing = calculateBearing([lat, lng], endLatLng);
+
+            planeMarker.setIcon(L.icon({
+                iconUrl: 'plane-icon.png',
+                iconSize: [32, 32],
+                iconAnchor: [16, 16],
+                popupAnchor: [0, -16],
+                iconAngle: bearing
+
+            }))
 
             step++
             setTimeout(movePlane, stepDelay)
@@ -38,7 +63,6 @@ const animatePlane = (startLatLng, endLatLng, duration) => {
     movePlane()
 }
 
-let player = { data: null, contract: null }
 const player = { data: null, contract: null }
 
 let gameRunning = false
@@ -403,7 +427,7 @@ const getContracts = async () => {
             tooltip.innerHTML = `Destination: ${randomAirport.airport}<br>
 					Country: ${randomAirport.country}<br>
 					Reward: $${contract.data.delivery_value}<br>
-					Distance: ${distanceInKilometers} Kilometers
+					Distance: ${distanceInKilometers} Km
 				`
             tooltip.style.display = 'block'
 
