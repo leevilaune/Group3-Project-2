@@ -7,11 +7,13 @@
 //3 plane options
 //random encounter
 //
-const planeIcon = L.icon({
-    iconUrl: 'plane-icon.png',
+const planeIcon = (bearing) => L.divIcon({
+    className: 'plane-icon',
+    html: `<div style="transform: rotate(${bearing}deg);">
+               <img src="plane-icon.png" style="width: 32px; height: 32px;" />
+           </div>`,
     iconSize: [32, 32],
     iconAnchor: [16, 16],
-    popupAnchor: [0, -16]
 })
 
 let planeMarker = null;
@@ -43,15 +45,7 @@ const animatePlane = (startLatLng, endLatLng, duration) => {
             planeMarker.setLatLng([lat, lng]);
 
             const bearing = calculateBearing([lat, lng], endLatLng);
-
-            planeMarker.setIcon(L.icon({
-                iconUrl: 'plane-icon.png',
-                iconSize: [32, 32],
-                iconAnchor: [16, 16],
-                popupAnchor: [0, -16],
-                iconAngle: bearing
-
-            }))
+            planeMarker.setIcon(planeIcon(bearing));
 
             step++
             setTimeout(movePlane, stepDelay)
@@ -236,7 +230,10 @@ async function flyTo() {
     const duration = 2;
 
     if (!planeMarker) {
-        planeMarker = L.marker(startLatLng, { icon: planeIcon }).addTo(map);
+        planeMarker = L.marker(startLatLng, {
+            icon: planeIcon(0),
+            className: 'rotatable-icon'
+        }).addTo(map);
     }
 
     animatePlane(startLatLng, endLatLng, duration);

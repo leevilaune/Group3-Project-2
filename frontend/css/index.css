@@ -3,6 +3,19 @@
     width: 100%;
 }
 
+.plane-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 32px;
+    height: 32px;
+}
+
+.rotatable-icon {
+    transform-origin: center;
+    transition: transform 0.1s linear;
+}
+
 body {
     margin: 0px;
 }
