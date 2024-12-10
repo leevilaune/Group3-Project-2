@@ -1,5 +1,6 @@
 import json
 import random
+import time
 
 from geopy.distance import distance
 
@@ -60,5 +61,5 @@ class ContractManager:
 		reward = cargo_value*0.2
 		distance_to_airport = airports[0]["distance"]
 		contract = Contract(cargo_dict,airports,reward,distance_to_airport)
-		print(f"'Contract.ContractManager.generate_contract': Generated contract {contract}")
+		print(f"{int(time.time())}|'Contract.ContractManager.generate_contract': Generated contract {contract}")
 		return contract
