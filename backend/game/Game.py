@@ -106,8 +106,8 @@ class Game:
 		# refilling a random amount every landing
 		fuel_amount += random.randint(200, 1000)
 
-		time = dist/plane.max_speed * 60
-		current_day = player.current_day + (time / 1440)
+		t = dist/plane.max_speed * 60
+		current_day = player.current_day + (t / 1440)
 		update = {
 			"current_day":current_day,
 			"fuel_amount":fuel_amount,
