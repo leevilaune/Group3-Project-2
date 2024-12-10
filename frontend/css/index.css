@@ -3,6 +3,19 @@
     width: 100%;
 }
 
+.plane-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 32px;
+    height: 32px;
+}
+
+.rotatable-icon {
+    transform-origin: center;
+    transition: transform 0.1s linear;
+}
+
 body {
     margin: 0px;
 }
@@ -26,14 +39,23 @@ body {
 dialog {
     margin: auto;
     outline: none;
+    overflow: visible;
     border: 1px solid black;
     border-radius: 0.25rem;
+}
+
+dialog div {
+    pointer-events: none;
 }
 
 dialog li:hover {
     background: green;
     cursor: pointer;
 }
+
+/*dialog ul {*/
+/*    min-height: 200px;*/
+/*}*/
 
 .id-card-class {
     display: grid;

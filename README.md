@@ -7,6 +7,19 @@ This API provides various endpoints to interact with airport, player, plane, and
 
 ---
 
+### db.json
+```json
+{
+	"host": "127.0.0.1",
+	"port": 3306,
+	"database": "flight_game",
+	"username": "usename",
+	"password": "db_password",
+	"weatherAPI_key": "your weatherAPI key"
+}
+```
+---
+
 ## Endpoints
 
 ### 1. Get Airports by Distance

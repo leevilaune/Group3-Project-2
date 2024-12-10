@@ -1,5 +1,6 @@
 # setting off formatting for neovim for this file
 # fmt: off
+import requests
 from pyexpat import native_encoding
 
 from flask import Flask, Response, request
@@ -13,7 +14,6 @@ from backend.game.Contract import CargoManager, ContractManager
 from backend.game.Database import Database
 from backend.game.Game import PlayerManager
 from backend.game.Plane import PlaneManager
-
 app = Flask(__name__)
 CORS(app)
 
@@ -36,7 +36,7 @@ def get_airport(icao:str):
 
 @app.route("/api/player/<name>")
 def get_player(name: str):
-	player = get_player_data(name)
+	player = db_get_player(name)
 	if player is None:
 		return Response(response=json.dumps({"code": 404, "text": f"Player {name} not found"}), status=404,
 	                    mimetype="application/json")
@@ -44,8 +44,11 @@ def get_player(name: str):
 
 @app.route("/api/player/create/<name>")
 def create_player(name: str):
-	add_player_to_db(name)
-	return Response(response=json.dumps({"text":"Player created"}), status=200, mimetype="application/json")
+	code = add_player_to_db(name)
+	#if code == 403:
+	#	return Response(response=json.dumps({"text":"Already Logged in"}), status=403, mimetype="application/json")
+	if code == 200:
+		return Response(response=json.dumps({"text":"Player created"}), status=200, mimetype="application/json")
 
 @app.route("/api/player/update/<name>", methods=['GET',"POST"])
 def update_player(name: str):
@@ -55,8 +58,8 @@ def update_player(name: str):
 	except Exception as e:
 		print(e)
 		return Response(status=400,response=json.dumps({"text":"Bad Request, Check your payload"}), mimetype="application/json")
-
-	return Response(status=200, response=json.dumps({"text": "Player Updated"}), mimetype="application/json")
+	print(f"Player data before return{pm.get_player(name).__dict__}")
+	return Response(status=200, response=json.dumps(pm.get_player(name).__dict__), mimetype="application/json")
 
 
 @app.route("/api/plane/<plane_id>")
@@ -77,11 +80,19 @@ def get_contract(name):
 
 @app.route("/admin/api/players")
 def get_players():
-	players = get_players_from_db()
+	players = pm.players()
 	if players is None:
 		return Response(response=json.dumps({"code": 404, "text": f"Players not found"}), status=404,
 		                mimetype="application/json")
-	return Response(response=json.dumps(players), status=200, mimetype="application/json")
+	return Response(response=json.dumps({"players":players}), status=200, mimetype="application/json")
+
+@app.route("/api/weather/<icao>")
+def get_weather(icao: str):
+	airport = get_airports(icao)
+	res = requests.get(f"https://api.openweathermap.org/data/2.5/weather?lat={airport['latitude_deg']}&lon={airport['longitude_deg']}&appid={apiKey}")
+	if res.status_code == 200:
+		return Response(response=json.dumps(res.json()), status=res.status_code, mimetype="application/json")
+	return Response(status=404)
 
 @app.errorhandler(404)
 def page_not_found(errorcode):
@@ -103,60 +114,46 @@ connection = mysql.connector.connect(
     password=database["password"],
     autocommit=True,
     buffered=True)
+# get the weatherapi key from the json file
+apiKey = database["weatherAPI_key"]
 cursor = connection.cursor(dictionary=True)
 db = Database()
 planeManager = PlaneManager(db)
+pm = PlayerManager(db,planeManager)
+
 contractManager = ContractManager(db)
 
-pm = PlayerManager(db)
 def get_airports(icao: str)->dict:
-	fetch_airport_sql = f"""
-	SELECT *
-    FROM airport
-    WHERE airport.ident = '{icao}'
-	"""
-	cursor.execute(fetch_airport_sql)
-	return cursor.fetchone()
+	return db.get_airport(icao)
 
-def get_player_data(name: str)->dict:
-	fetch_player_sql = f"""
-    SELECT *
-    FROM game
-    WHERE screen_name = '{name}'
-    """
-	cursor.execute(fetch_player_sql)
-	return cursor.fetchone()
-
-def get_static_data(table)->dict:
-	fetch_data_sql = f"""
-	SELECT *
-	FROM {table}
-	"""
-	cursor.execute(fetch_data_sql)
-	return cursor.fetchall()
+def db_get_player(name: str)->dict:
+	return db.get_player_data(name)
 
 def get_players_from_db():
 	return db.fetch_data("game")
 
-def add_player_to_db(name):
-
+def add_player_to_db(name) -> int:
+	print(f"Player {name} exists {db.user_exists_by_name(name)}")
 	if pm.player_exists(name) is False:
 		add_data = {"co2_consumed": 0,
 		            "co2_budget": 20000,
 		            "currency": 100000,
 		            "location": "EFHK",
-		            "fuel_amount": 69420,
-		            "current_day": 0,
+		            "fuel_amount": 100000,
+		            "current_day": 0.0,
+		            "rented_plane":1,
 		            "screen_name": name}
-		print(add_data)
+		print(f"add data: {add_data}")
 		db.add_data([add_data], "game")
 		pm.login(name)
+		return 200
 	else:
-		pm.login(name)
-
+		if pm.login(name):
+			return 403
+		else: return 200
 
 def db_airports_by_distance(amount:int, distance:int,screen_name:str) -> list:
-	print(get_player_data(screen_name))
+	print(db_get_player(screen_name))
 	return db.get_airports_by_distance("large_airport", distance,screen_name,amount)
 if __name__ == '__main__':
 	app.run(use_reloader=False,
