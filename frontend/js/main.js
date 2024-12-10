@@ -19,8 +19,8 @@ const planeIcon = (bearing) => L.divIcon({
 let planeMarker = null;
 
 const animatePlane = (startLatLng, endLatLng, duration) => {
-    const steps = 100;
-    const stepDelay = duration / steps;
+    const steps = 10*duration;
+    const stepDelay = duration;
     let step = 0;
 
     const calculateBearing = (start, end) => {
@@ -46,6 +46,7 @@ const movePlane = () => {
         const currentLatLng = { lat, lng };
 
         planeMarker.setLatLng(currentLatLng);
+        map.panTo(L.latLng(lat, lng))
 
         const bearing = calculateBearing(currentLatLng, endLatLng);
         console.log(`Step ${step}, Bearing: ${bearing}`);
@@ -74,8 +75,8 @@ const startDialog = () => {
     dialog.innerHTML = `
 <h2 id="new game">New game</h2>
 <h2 id="load game">Load game</h2>
-<h2><a style="text-decoration: none; color: black" href="instructions.html">Instructions</a></h2>
-<h2><a style="text-decoration: none; color: black" href="devit.html">Credits</a></h2>`
+<h2><a href="instructions.html">Instructions</a></h2>
+<h2><a href="devit.html">Credits</a></h2>`
     dialog.showModal()
 
     const h2s = dialog.querySelectorAll("h2")
@@ -231,7 +232,7 @@ async function flyTo() {
     const currentAirport = await createAPICall("airport", player.data.location);
     const startLatLng = L.latLng(currentAirport.latitude_deg, currentAirport.longitude_deg);
     const endLatLng = L.latLng(this.data.airport.latitude_deg, this.data.airport.longitude_deg);
-    const duration = 2;
+    const duration = 10;
 
     if (!planeMarker) {
         planeMarker = L.marker(startLatLng, {
@@ -241,10 +242,14 @@ async function flyTo() {
     }
 
     animatePlane(startLatLng, endLatLng, duration);
-    map.panTo(L.latLng(this.data.airport.latitude_deg, this.data.airport.longitude_deg))
+    //map.panTo(L.latLng(this.data.airport.latitude_deg, this.data.airport.longitude_deg))
     // check if this airport is the one in the contract
     // remove markers somehow
     // generate new markers for close airports (put the code that generated it earlier in function probably)
+
+    //Wait for the animation to finish, duration1 is the betweensteps time, and duration*10 is the steps, the last *10 is to convert it from frames to seconds
+    //-Eetu
+    await new Promise(r => setTimeout(r,duration+duration*10*10));
     // update player data
     player.data.location = this.data.airport.ident
 

@@ -51,6 +51,22 @@ dialog div {
 dialog li:hover {
     background: green;
     cursor: pointer;
+    outline: 0.1em solid black;
+}
+
+dialog > h2{
+    cursor:pointer;
+    text-decoration: none; color: black; 
+}
+dialog > h2:hover{
+    outline: 0.1em solid black;
+}
+dialog > h2 > a{
+    text-decoration: none; color: black; 
+}
+
+a:focus-visible{
+    outline: none;
 }
 
 /*dialog ul {*/
@@ -156,6 +172,8 @@ dialog li:hover {
     border-width: 0.5vw;
     border-bottom-style: solid;
     height: auto;
+    padding-top: 0.125em;
+    padding-bottom: 0.125em;
     text-align: center;
 }
 
