@@ -39,24 +39,24 @@ const animatePlane = (startLatLng, endLatLng, duration) => {
     }
 
 
-const movePlane = () => {
-    if (step < steps) {
-        const lat = startLatLng.lat + ((endLatLng.lat - startLatLng.lat) * (step / steps));
-        const lng = startLatLng.lng + ((endLatLng.lng - startLatLng.lng) * (step / steps));
-        const currentLatLng = { lat, lng };
+    const movePlane = () => {
+        if (step < steps) {
+            const lat = startLatLng.lat + ((endLatLng.lat - startLatLng.lat) * (step / steps));
+            const lng = startLatLng.lng + ((endLatLng.lng - startLatLng.lng) * (step / steps));
+            const currentLatLng = { lat, lng };
 
-        planeMarker.setLatLng(currentLatLng);
+            planeMarker.setLatLng(currentLatLng);
 
-        const bearing = calculateBearing(currentLatLng, endLatLng);
-        console.log(`Step ${step}, Bearing: ${bearing}`);
-        planeMarker.setIcon(planeIcon(bearing));
+            const bearing = calculateBearing(currentLatLng, endLatLng);
+            //console.log(`Step ${step}, Bearing: ${bearing}`);
+            planeMarker.setIcon(planeIcon(bearing));
 
-        step++;
-        setTimeout(movePlane, stepDelay);
-    } else {
-        console.log("Animation complete");
+            step++;
+            setTimeout(movePlane, stepDelay);
+        } else {
+            console.log("Animation complete");
+        }
     }
-}
 
     movePlane()
 }
@@ -117,10 +117,10 @@ const loadGame = async () => {
             console.log(`player initialized with: ${JSON.stringify(player)}`)
             if (player.data != undefined) {
                 // set coordinates to pan to (Helsinki)
+                // update values in the UI
+                await refreshUIValues()
 
                 // set player data to the player card element
-                document.querySelector(".id-grid-name").innerText = username
-                document.querySelector(".id-grid-currency").innerText = player.data.currency
 
                 dialog.innerHTML = ""
                 dialog.close()
@@ -174,11 +174,9 @@ function nameInput() {
             console.log(await createAPICall("player/create", username))
             player.data = await createAPICall("player", username)
 
-            // set coordinates to pan to (Helsinki)
 
-            // set player data to the player card element
-            document.querySelector(".id-grid-name").innerText = username
-            document.querySelector(".id-grid-currency").innerText = player.data.currency
+            // update values in the UI
+            await refreshUIValues()
 
             dialog.innerHTML = ""
             dialog.close()
@@ -198,15 +196,30 @@ function nameInput() {
     })
 }
 
+const refreshUIValues = async () => {
+
+    // get coordinates of the current airport
+    const currentAirport = await createAPICall("airport", player.data.location);
+    const gpsData = document.querySelectorAll(".gps-data-block")
+    // return weather from the weather api
+    const weather = await createAPICall("weather", player.data.location)
+
+    // left side
+    document.querySelector(".id-grid-name").innerText = "Name: " + player.data.screen_name
+    document.querySelector(".id-grid-currency").innerText = "Money: " + player.data.currency.toString()
+    document.querySelector(".id-grid-temp").innerText = "Fuel: " + player.data.fuel_amount.toString()
+
+    // right side
+    gpsData[0].querySelector("p").innerText = parseInt(currentAirport.latitude_deg)
+    gpsData[1].querySelector("p").innerText = parseInt(currentAirport.longitude_deg)
+    gpsData[2].querySelector("p").innerText = weather.weather[0].main
+}
+
 const updateGame = async () => {
     console.log("Before update", player.data)
     player.data = await createAPIPostCall("player/update", player.data.screen_name, player.data)
     console.log("After update", player.data)
 
-    // return weather from the weather api
-    // show it somewhere
-    const weather = await createAPICall("weather", player.data.location)
-    console.log(weather)
 
     if (Math.floor(player.data.current_day) != 0) {
         player.data.currency -= player.plane.data.price
@@ -223,6 +236,8 @@ const updateGame = async () => {
             location.reload()
         }, 2000)
     }
+
+    await refreshUIValues()
 }
 
 async function flyTo() {
