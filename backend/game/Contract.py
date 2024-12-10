@@ -50,16 +50,15 @@ class ContractManager:
 
 	def generate_contract(self, username: str) -> Contract:
 		airports = self.database.get_airports_by_distance("large_airport",2000,username,20)
-		print(airports[0])
 		cargo = self.cargo_manager.get_random_cargo(3)
 		cargo_value = 0
 		cargo_dict = []
 		for carg in cargo:
 			cargo_dict.append(carg.__dict__)
 		for c in cargo:
-			print(c)
 			cargo_value += c.delivery_value
 		reward = cargo_value*0.2
 		distance_to_airport = airports[0]["distance"]
-
-		return Contract(cargo_dict,airports,reward,distance_to_airport)
+		contract = Contract(cargo_dict,airports,reward,distance_to_airport)
+		print(f"'Contract.ContractManager.generate_contract': Generated contract {contract}")
+		return contract

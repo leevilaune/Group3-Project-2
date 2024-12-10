@@ -1,4 +1,6 @@
 # fmt: off
+import time
+
 from geopy.distance import distance
 from backend.game.Plane import PlaneManager
 from backend.game.Database import Database
@@ -17,15 +19,9 @@ class Player:
 		self.current_day = json["current_day"]
 
 	def update(self, json:dict):
-		print(json)
 		for key, value in json.items():
 			if hasattr(self, key) and value is not None:
-				print(getattr(self, key), key)
 				setattr(self, key, value)
-				print(getattr(self, key))
-
-		print(self.__dict__)
-
 
 class PlayerManager:
 	def __init__(self, db: Database, plm: PlaneManager):
@@ -71,15 +67,11 @@ class PlayerManager:
 		json["fuel_amount"] = update_data["fuel_amount"]
 		player.update(json)
 		if json.keys().__contains__("location"):
-			print(old_location, new_location)
 			if old_location != new_location:
-				print("updating location")
+				print(f"'Game.PlayerManager.update_player': Update Player Location")
 				player.update(self.game.land(old_location, new_location, screen_name))
-		print(f"Player data before db update{player.__dict__}")
 		self.db.update_data([player.__dict__],"game","screen_name")
-		print("Committed to DB")
-		print(self.db.get_player_data(screen_name))
-
+		print(f"'Game.PlayerManager.update_player': Committed to DB")
 
 
 class Game:
@@ -115,11 +107,10 @@ class Game:
 		fuel_amount += random.randint(200, 1000)
 
 		time = dist/plane.max_speed * 60
-		print(player.current_day)
 		current_day = player.current_day + (time / 1440)
-		print(current_day)
 		update = {
 			"current_day":current_day,
 			"fuel_amount":fuel_amount,
 		}
+		print(f"'Game.Game.land': Update Data {update}")
 		return update

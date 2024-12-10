@@ -24,7 +24,9 @@ def get_airport_by_distance(amount, distance,name):
 	if len(airports) == 0:
 		return Response(response=json.dumps({"code": 404, "text": f"No airports found near"}), status=404,
 		                mimetype="application/json")
-	return Response(response=json.dumps(airports), status=200, mimetype="application/json")
+	resp =  Response(response=json.dumps(airports), status=200, mimetype="application/json")
+	print(f"'api.get_airport_by_distance': Returning {resp.json}")
+	return resp
 
 @app.route("/api/airport/<icao>")
 def get_airport(icao:str):
@@ -32,7 +34,9 @@ def get_airport(icao:str):
 	if airport is None:
 		return Response(response=json.dumps({"code": 404, "text": f"Airport {icao} not found"}), status=404,
 		                mimetype="application/json")
-	return Response(response=json.dumps(airport), status=200, mimetype="application/json")
+	resp =  Response(response=json.dumps(airport), status=200, mimetype="application/json")
+	print(f"'api.get_airport': Returning {resp.json}")
+	return resp
 
 @app.route("/api/player/<name>")
 def get_player(name: str):
@@ -40,7 +44,10 @@ def get_player(name: str):
 	if player is None:
 		return Response(response=json.dumps({"code": 404, "text": f"Player {name} not found"}), status=404,
 	                    mimetype="application/json")
-	return Response(response=json.dumps(player), status=200, mimetype="application/json")
+	resp =  Response(response=json.dumps(player), status=200, mimetype="application/json")
+	print(f"'api.get_player': Returning {resp.json}")
+	return resp
+
 
 @app.route("/api/player/create/<name>")
 def create_player(name: str):
@@ -58,9 +65,10 @@ def update_player(name: str):
 	except Exception as e:
 		print(e)
 		return Response(status=400,response=json.dumps({"text":"Bad Request, Check your payload"}), mimetype="application/json")
-	print(f"Player data before return{pm.get_player(name).__dict__}")
-	return Response(status=200, response=json.dumps(pm.get_player(name).__dict__), mimetype="application/json")
 
+	resp =  Response(status=200, response=json.dumps(pm.get_player(name).__dict__), mimetype="application/json")
+	print(f"'api.update_player': Returning {resp.json}")
+	return resp
 
 @app.route("/api/plane/<plane_id>")
 def get_plane(plane_id:int):
@@ -68,7 +76,9 @@ def get_plane(plane_id:int):
 	if plane is None:
 		return Response(response=json.dumps({"code": 404, "text": f"Planes not found"}), status=404,
 		                mimetype="application/json")
-	return Response(response=json.dumps(plane.__dict__), status=200, mimetype="application/json")
+	resp =  Response(response=json.dumps(plane.__dict__), status=200, mimetype="application/json")
+	print(f"'api.get_plane': Returning {resp.json}")
+	return resp
 
 @app.route("/api/contract/<name>")
 def get_contract(name):
@@ -76,7 +86,9 @@ def get_contract(name):
 	if contract is None:
 		return Response(response=json.dumps({"code": 404, "text": f"Contract not found"}), status=404,
 		                mimetype="application/json")
-	return Response(response=json.dumps(contract.__dict__), status=200, mimetype="application/json")
+	resp =  Response(response=json.dumps(contract.__dict__), status=200, mimetype="application/json")
+	print(f"'api.get_contract': Returning {resp}")
+	return resp
 
 @app.route("/admin/api/players")
 def get_players():
@@ -133,7 +145,7 @@ def get_players_from_db():
 	return db.fetch_data("game")
 
 def add_player_to_db(name) -> int:
-	print(f"Player {name} exists {db.user_exists_by_name(name)}")
+	print(f"'api.add_player_to_db': Player {name} exists {db.user_exists_by_name(name)}")
 	if pm.player_exists(name) is False:
 		add_data = {"co2_consumed": 0,
 		            "co2_budget": 20000,
@@ -143,7 +155,7 @@ def add_player_to_db(name) -> int:
 		            "current_day": 0.0,
 		            "rented_plane":1,
 		            "screen_name": name}
-		print(f"add data: {add_data}")
+		print(f"'api.add_player_to_db': Add Data: {add_data}")
 		db.add_data([add_data], "game")
 		pm.login(name)
 		return 200
@@ -153,7 +165,6 @@ def add_player_to_db(name) -> int:
 		else: return 200
 
 def db_airports_by_distance(amount:int, distance:int,screen_name:str) -> list:
-	print(db_get_player(screen_name))
 	return db.get_airports_by_distance("large_airport", distance,screen_name,amount)
 if __name__ == '__main__':
 	app.run(use_reloader=False,
