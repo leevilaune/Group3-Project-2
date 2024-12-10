@@ -162,3 +162,5 @@ cython_debug/
 #.idea/
 /db.json
 /.idea
+.idea/misc.xml
+.idea/Group3-Project-2.iml
