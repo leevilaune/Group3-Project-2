@@ -34,5 +34,5 @@ class PlaneManager:
 	def get_plane_by_id(self, plane_id:int) -> Plane:
 		for plane in self.planes:
 			if plane.id == plane_id:
-				print(f"'Plane.PlaneManager.get_plane_by_id': Getting plane: {plane}")
+				print(f"{int(time.time())}|'Plane.PlaneManager.get_plane_by_id': Getting plane: {plane}")
 				return plane

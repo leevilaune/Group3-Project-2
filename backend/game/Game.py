@@ -68,10 +68,10 @@ class PlayerManager:
 		player.update(json)
 		if json.keys().__contains__("location"):
 			if old_location != new_location:
-				print(f"'Game.PlayerManager.update_player': Update Player Location")
+				print(f"{int(time.time())}|'Game.PlayerManager.update_player': Update Player Location")
 				player.update(self.game.land(old_location, new_location, screen_name))
 		self.db.update_data([player.__dict__],"game","screen_name")
-		print(f"'Game.PlayerManager.update_player': Committed to DB")
+		print(f"{int(time.time())}|'Game.PlayerManager.update_player': Committed to DB")
 
 
 class Game:
@@ -112,5 +112,5 @@ class Game:
 			"current_day":current_day,
 			"fuel_amount":fuel_amount,
 		}
-		print(f"'Game.Game.land': Update Data {update}")
+		print(f"{int(time.time())}|'Game.Game.land': Update Data {update}")
 		return update
