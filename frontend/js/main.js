@@ -383,6 +383,11 @@ async function selectContract() {
     // making some spaghetti ...
     if (!gameRunning) {
         await setupGame()
+    } else {
+        const currentAirport = await createAPICall("airport", player.data.location)
+        console.log(currentAirport)
+        const playerLatLng = L.latLng(currentAirport.latitude_deg, currentAirport.longitude_deg)
+        map.panTo(playerLatLng)
     }
 }
 
@@ -480,7 +485,7 @@ const getContracts = async () => {
 
 const updateMarkers = async () => {
     // add markers and attach data to them
-    const airportsClose = await createAPICall("airport/bydistance/1000/10", player.data.screen_name)
+    const airportsClose = await createAPICall("airport/bydistance/1/1000/10", player.data.screen_name)
     for (const airport of airportsClose) {
         let draw = true
         // this is really bad it always goes through every layer fix if time left

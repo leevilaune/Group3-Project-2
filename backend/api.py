@@ -20,9 +20,9 @@ app = Flask(__name__)
 CORS(app)
 
 # TODO airports by distance
-@app.route('/api/airport/bydistance/<distance>/<amount>/<name>', methods=['GET'])
-def get_airport_by_distance(amount, distance,name):
-	airports = db_airports_by_distance(amount,distance,name)
+@app.route('/api/airport/bydistance/<distance_min>/<distance_max>/<amount>/<name>', methods=['GET'])
+def get_airport_by_distance(amount, distance_min,distance_max,name):
+	airports = db_airports_by_distance(amount,distance_min,distance_max,name)
 	if len(airports) == 0:
 		return Response(response=json.dumps({"code": 404, "text": f"No airports found near"}), status=404,
 		                mimetype="application/json")
@@ -153,7 +153,7 @@ def add_player_to_db(name) -> int:
 		            "co2_budget": 20000,
 		            "currency": 100000,
 		            "location": "EFHK",
-		            "fuel_amount": 100000,
+		            "fuel_amount": 5000,
 		            "current_day": 0.0,
 		            "rented_plane":1,
 		            "screen_name": name}
@@ -166,8 +166,8 @@ def add_player_to_db(name) -> int:
 			return 403
 		else: return 200
 
-def db_airports_by_distance(amount:int, distance:int,screen_name:str) -> list:
-	return db.get_airports_by_distance("large_airport", distance,screen_name,amount)
+def db_airports_by_distance(amount:int,distance_min: int, distance_max:  int,screen_name:str) -> list:
+	return db.get_airports_by_distance("large_airport", distance_min,distance_max,screen_name,amount)
 if __name__ == '__main__':
 	app.run(use_reloader=False,
             host='127.0.0.1',
