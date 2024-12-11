@@ -121,7 +121,6 @@ const loadGame = async () => {
 
             console.log(`player initialized with: ${JSON.stringify(player)}`)
             if (player.data != undefined) {
-                // set coordinates to pan to (Helsinki)
                 // update values in the UI
                 await refreshUIValues()
 
@@ -206,8 +205,6 @@ const refreshUIValues = async () => {
     // get coordinates of the current airport
     const currentAirport = await createAPICall("airport", player.data.location);
     const gpsData = document.querySelectorAll(".gps-data-block")
-    // return weather from the weather api
-    const weather = await createAPICall("weather", player.data.location)
 
     // left side
     document.querySelector(".id-grid-name").innerText = "Name: " + player.data.screen_name
@@ -216,9 +213,13 @@ const refreshUIValues = async () => {
     // right side
     gpsData[0].querySelector("p").innerText = parseFloat(currentAirport.latitude_deg).toFixed(5)
     gpsData[1].querySelector("p").innerText = parseFloat(currentAirport.longitude_deg).toFixed(5)
-    gpsData[2].querySelector("p").innerText = weather.weather[0].main
     gpsData[3].querySelector("p").innerText = player.data.fuel_amount.toString() + " [L]"
 
+    // return weather from the weather api
+    const weather = await createAPICall("weather", player.data.location)
+    if (weather) {
+        gpsData[2].querySelector("p").innerText = weather.weather[0].main
+    }
 }
 
 const updateGame = async () => {

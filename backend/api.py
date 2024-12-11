@@ -106,7 +106,7 @@ def get_weather(icao: str):
 	res = requests.get(f"https://api.openweathermap.org/data/2.5/weather?lat={airport['latitude_deg']}&lon={airport['longitude_deg']}&appid={apiKey}")
 	if res.status_code == 200:
 		return Response(response=json.dumps(res.json()), status=res.status_code, mimetype="application/json")
-	return Response(status=404)
+	return Response(status=404, response=json.dumps({"code": 404, "text": "Weather unavailable check apiKey"}), mimetype="application/json")
 
 @app.errorhandler(404)
 def page_not_found(errorcode):
