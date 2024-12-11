@@ -16,6 +16,7 @@ from backend.game.Contract import CargoManager, ContractManager
 from backend.game.Database import Database
 from backend.game.Game import PlayerManager
 from backend.game.Plane import PlaneManager
+from backend.weatherapi import WeatherApi
 app = Flask(__name__)
 CORS(app)
 
@@ -100,12 +101,11 @@ def get_players():
 		                mimetype="application/json")
 	return Response(response=json.dumps({"players":players}), status=200, mimetype="application/json")
 
-@app.route("/api/weather/<icao>")
-def get_weather(icao: str):
-	airport = get_airports(icao)
-	res = requests.get(f"https://api.openweathermap.org/data/2.5/weather?lat={airport['latitude_deg']}&lon={airport['longitude_deg']}&appid={apiKey}")
-	if res.status_code == 200:
-		return Response(response=json.dumps(res.json()), status=res.status_code, mimetype="application/json")
+@app.route("/api/weather/<screen_name>")
+def get_weather(screen_name: str):
+	weather = wa.get_weather(screen_name)
+	if weather:
+		return Response(response=json.dumps(weather), status=200, mimetype="application/json")
 	return Response(status=404, response=json.dumps({"code": 404, "text": "Weather unavailable check apiKey"}), mimetype="application/json")
 
 @app.errorhandler(404)
@@ -134,6 +134,7 @@ cursor = connection.cursor(dictionary=True)
 db = Database()
 planeManager = PlaneManager(db)
 pm = PlayerManager(db,planeManager)
+wa = WeatherApi(db, pm)
 
 contractManager = ContractManager(db)
 
