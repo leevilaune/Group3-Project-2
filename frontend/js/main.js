@@ -45,8 +45,12 @@ const animatePlane = (startLatLng, endLatLng, duration) => {
             const lng = startLatLng.lng + ((endLatLng.lng - startLatLng.lng) * (step / steps));
             const currentLatLng = { lat, lng };
 
-        planeMarker.setLatLng(currentLatLng);
-        map.panTo(L.latLng(lat, lng))
+            planeMarker.setLatLng(currentLatLng);
+            map.panTo(L.latLng(lat, lng))
+
+            let gpsData = document.querySelectorAll(".gps-data-block")
+            gpsData[0].querySelector("p").innerText = parseFloat(lat).toFixed(5)
+            gpsData[1].querySelector("p").innerText = parseFloat(lng).toFixed(5)
 
             const bearing = calculateBearing(currentLatLng, endLatLng);
             //console.log(`Step ${step}, Bearing: ${bearing}`);
@@ -207,13 +211,14 @@ const refreshUIValues = async () => {
 
     // left side
     document.querySelector(".id-grid-name").innerText = "Name: " + player.data.screen_name
-    document.querySelector(".id-grid-currency").innerText = "Money: " + player.data.currency.toString()
-    document.querySelector(".id-grid-temp").innerText = "Fuel: " + player.data.fuel_amount.toString()
+    document.querySelector(".id-grid-currency").innerText = "Money: $" + player.data.currency.toString()
 
     // right side
-    gpsData[0].querySelector("p").innerText = parseInt(currentAirport.latitude_deg)
-    gpsData[1].querySelector("p").innerText = parseInt(currentAirport.longitude_deg)
+    gpsData[0].querySelector("p").innerText = parseFloat(currentAirport.latitude_deg).toFixed(5)
+    gpsData[1].querySelector("p").innerText = parseFloat(currentAirport.longitude_deg).toFixed(5)
     gpsData[2].querySelector("p").innerText = weather.weather[0].main
+    gpsData[3].querySelector("p").innerText = player.data.fuel_amount.toString() + " [L]"
+
 }
 
 const updateGame = async () => {
@@ -229,7 +234,7 @@ const updateGame = async () => {
     if (player.data.currency <= 0 || player.data.fuel_amount <= 0) {
         console.log("GAME OVER!")
         dialog.innerHTML = ""
-        dialog.innerText = "GAME OVER! you ran out of resources!"
+        dialog.innerText = "GAME OVER! You ran out of resources!"
         dialog.showModal()
 
         setTimeout(() => {
@@ -264,12 +269,16 @@ async function flyTo() {
 
     //Wait for the animation to finish, duration1 is the betweensteps time, and duration*10 is the steps, the last *10 is to convert it from frames to seconds
     //-Eetu
-    await new Promise(r => setTimeout(r,duration+duration*10*10));
+    await new Promise(r => setTimeout(r,(duration+duration*10)*10));
     // update player data
     player.data.location = this.data.airport.ident
 
     // update currency if we hit the contract airport
     if (player.data.location == player.contract.airport.ident) {
+        //A form to display the finished contract
+        await finishedContractScreen()
+
+        //update currency
         player.data.currency += player.contract.delivery_value
         await getContracts()
     }
@@ -288,7 +297,8 @@ async function flyTo() {
 async function selectPlane() {
     console.log(this)
     console.log(this.data.id)
-    document.querySelector(".id-grid-temp").innerText = this.data.type
+    //This was being overriden anyways when loading a game
+    //document.querySelector(".id-grid-temp").innerText = this.data.type
     const listItems = this.parentNode.querySelectorAll("li")
     listItems.forEach((item) => item.removeEventListener('click', selectPlane))
 
@@ -479,6 +489,49 @@ const getContracts = async () => {
     }
 
     dialog.showModal()
+}
+
+const finishedContractScreen = async () => {
+    const dialog = document.querySelector('dialog');
+    // Create the form
+    const form = document.createElement('form');
+    form.id = 'contract-end-form';
+    form.method = 'dialog'; // Enables the dialog to close when the form is submitted
+
+    // Add form content
+    form.innerHTML =`
+        <h2>Contract complete!</h2>
+        <p>Contract details:\n</p>
+        <div style="text-transform: capitalize;">
+            Payload: ${player.contract.description}<br>
+            Destination: ${player.contract.airport.airport}<br>
+            Country: ${player.contract.airport.country}<br>
+            Reward: $${player.contract.delivery_value}<br><br>
+        </div>
+        <input type="submit" value="Finish contract">
+    `;
+
+    // Attach an event listener to handle form submission
+    const submissionPromise = new Promise((resolve) => {
+        form.addEventListener('submit', (event) => {
+            event.preventDefault(); // Prevent default form behavior
+            console.log('Contract finished successfully!');
+            dialog.innerHTML = ""; // Clear the dialog.
+            dialog.close(); // Close the dialog
+            resolve(); // Resolve the promise to indicate the user has pressed the button
+        });
+    });
+
+    // Append the form to the dialog (if not already appended)
+    if (!dialog.contains(form)) {
+        dialog.appendChild(form);
+    }
+
+    // Show the dialog
+    dialog.showModal();
+
+    // Wait for the user to finish interacting with the form
+    await submissionPromise;
 }
 
 const updateMarkers = async () => {
