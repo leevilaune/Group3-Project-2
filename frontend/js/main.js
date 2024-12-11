@@ -211,7 +211,7 @@ const refreshUIValues = async () => {
     gpsData[1].querySelector("p").innerText = parseInt(currentAirport.longitude_deg)
 
     // return weather from the weather api
-    const weather = await createAPICall("weather", player.data.location)
+    const weather = await createAPICall("weather", player.data.screen_name)
     if (weather) {
         gpsData[2].querySelector("p").innerText = weather.weather[0].main
     }

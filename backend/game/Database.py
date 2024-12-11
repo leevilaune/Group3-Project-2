@@ -19,6 +19,8 @@ class Database:
             autocommit=True,
             buffered=True,
         )
+        # seemed like the optimal place to get this
+        self.apiKey = database["weatherAPI_key"]
         self.cursor = self.connection.cursor(dictionary=True)
         self.validate_database()
 
