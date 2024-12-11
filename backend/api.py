@@ -16,13 +16,14 @@ from backend.game.Contract import CargoManager, ContractManager
 from backend.game.Database import Database
 from backend.game.Game import PlayerManager
 from backend.game.Plane import PlaneManager
+from backend.weatherapi import WeatherApi
 app = Flask(__name__)
 CORS(app)
 
 # TODO airports by distance
-@app.route('/api/airport/bydistance/<distance>/<amount>/<name>', methods=['GET'])
-def get_airport_by_distance(amount, distance,name):
-	airports = db_airports_by_distance(amount,distance,name)
+@app.route('/api/airport/bydistance/<distance_min>/<distance_max>/<amount>/<name>', methods=['GET'])
+def get_airport_by_distance(amount, distance_min,distance_max,name):
+	airports = db_airports_by_distance(amount,distance_min,distance_max,name)
 	if len(airports) == 0:
 		return Response(response=json.dumps({"code": 404, "text": f"No airports found near"}), status=404,
 		                mimetype="application/json")
@@ -100,12 +101,11 @@ def get_players():
 		                mimetype="application/json")
 	return Response(response=json.dumps({"players":players}), status=200, mimetype="application/json")
 
-@app.route("/api/weather/<icao>")
-def get_weather(icao: str):
-	airport = get_airports(icao)
-	res = requests.get(f"https://api.openweathermap.org/data/2.5/weather?lat={airport['latitude_deg']}&lon={airport['longitude_deg']}&appid={apiKey}")
-	if res.status_code == 200:
-		return Response(response=json.dumps(res.json()), status=res.status_code, mimetype="application/json")
+@app.route("/api/weather/<screen_name>")
+def get_weather(screen_name: str):
+	weather = wa.get_weather(screen_name)
+	if weather:
+		return Response(response=json.dumps(weather), status=200, mimetype="application/json")
 	return Response(status=404, response=json.dumps({"code": 404, "text": "Weather unavailable check apiKey"}), mimetype="application/json")
 
 @app.errorhandler(404)
@@ -134,6 +134,7 @@ cursor = connection.cursor(dictionary=True)
 db = Database()
 planeManager = PlaneManager(db)
 pm = PlayerManager(db,planeManager)
+wa = WeatherApi(db, pm)
 
 contractManager = ContractManager(db)
 
@@ -153,7 +154,7 @@ def add_player_to_db(name) -> int:
 		            "co2_budget": 20000,
 		            "currency": 100000,
 		            "location": "EFHK",
-		            "fuel_amount": 100000,
+		            "fuel_amount": 5000,
 		            "current_day": 0.0,
 		            "rented_plane":1,
 		            "screen_name": name}
@@ -166,8 +167,8 @@ def add_player_to_db(name) -> int:
 			return 403
 		else: return 200
 
-def db_airports_by_distance(amount:int, distance:int,screen_name:str) -> list:
-	return db.get_airports_by_distance("large_airport", distance,screen_name,amount)
+def db_airports_by_distance(amount:int,distance_min: int, distance_max:  int,screen_name:str) -> list:
+	return db.get_airports_by_distance("large_airport", distance_min,distance_max,screen_name,amount)
 if __name__ == '__main__':
 	app.run(use_reloader=False,
             host='127.0.0.1',

@@ -216,7 +216,7 @@ const refreshUIValues = async () => {
     gpsData[3].querySelector("p").innerText = player.data.fuel_amount.toString() + " [L]"
 
     // return weather from the weather api
-    const weather = await createAPICall("weather", player.data.location)
+    const weather = await createAPICall("weather", player.data.screen_name)
     if (weather) {
         gpsData[2].querySelector("p").innerText = weather.weather[0].main
     }
@@ -397,6 +397,11 @@ async function selectContract() {
     // making some spaghetti ...
     if (!gameRunning) {
         await setupGame()
+    } else {
+        const currentAirport = await createAPICall("airport", player.data.location)
+        console.log(currentAirport)
+        const playerLatLng = L.latLng(currentAirport.latitude_deg, currentAirport.longitude_deg)
+        map.panTo(playerLatLng)
     }
 }
 
@@ -537,7 +542,7 @@ const finishedContractScreen = async () => {
 
 const updateMarkers = async () => {
     // add markers and attach data to them
-    const airportsClose = await createAPICall("airport/bydistance/1000/10", player.data.screen_name)
+    const airportsClose = await createAPICall("airport/bydistance/1/1000/10", player.data.screen_name)
     for (const airport of airportsClose) {
         let draw = true
         // this is really bad it always goes through every layer fix if time left
