@@ -23,6 +23,8 @@ class PlaneManager:
 	def load_planes(self):
 		plane_data = self.database.fetch_data("plane")
 		for plane in plane_data:
+			if plane["type"] == "cargo_plane":
+				plane["fuel_consumption"] = int(plane["fuel_consumption"]**0.85)
 			self.planes.append(Plane(plane))
 
 	def get_random_planes(self,number_of_planes:int) -> list:
