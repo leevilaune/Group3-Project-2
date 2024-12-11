@@ -19,8 +19,8 @@ const planeIcon = (bearing) => L.divIcon({
 let planeMarker = null;
 
 const animatePlane = (startLatLng, endLatLng, duration) => {
-    const steps = 100;
-    const stepDelay = duration / steps;
+    const steps = 10*duration;
+    const stepDelay = duration;
     let step = 0;
 
     const calculateBearing = (start, end) => {
@@ -46,6 +46,11 @@ const animatePlane = (startLatLng, endLatLng, duration) => {
             const currentLatLng = { lat, lng };
 
             planeMarker.setLatLng(currentLatLng);
+            map.panTo(L.latLng(lat, lng))
+
+            let gpsData = document.querySelectorAll(".gps-data-block")
+            gpsData[0].querySelector("p").innerText = parseFloat(lat).toFixed(5)
+            gpsData[1].querySelector("p").innerText = parseFloat(lng).toFixed(5)
 
             const bearing = calculateBearing(currentLatLng, endLatLng);
             //console.log(`Step ${step}, Bearing: ${bearing}`);
@@ -74,8 +79,8 @@ const startDialog = () => {
     dialog.innerHTML = `
 <h2 id="new game">New game</h2>
 <h2 id="load game">Load game</h2>
-<h2><a style="text-decoration: none; color: black" href="instructions.html">Instructions</a></h2>
-<h2><a style="text-decoration: none; color: black" href="devit.html">Credits</a></h2>`
+<h2><a href="instructions.html">Instructions</a></h2>
+<h2><a href="devit.html">Credits</a></h2>`
     dialog.showModal()
 
     const h2s = dialog.querySelectorAll("h2")
@@ -203,12 +208,12 @@ const refreshUIValues = async () => {
 
     // left side
     document.querySelector(".id-grid-name").innerText = "Name: " + player.data.screen_name
-    document.querySelector(".id-grid-currency").innerText = "Money: " + player.data.currency.toString()
-    document.querySelector(".id-grid-temp").innerText = "Fuel: " + player.data.fuel_amount.toString()
+    document.querySelector(".id-grid-currency").innerText = "Money: $" + player.data.currency.toString()
 
     // right side
-    gpsData[0].querySelector("p").innerText = parseInt(currentAirport.latitude_deg)
-    gpsData[1].querySelector("p").innerText = parseInt(currentAirport.longitude_deg)
+    gpsData[0].querySelector("p").innerText = parseFloat(currentAirport.latitude_deg).toFixed(5)
+    gpsData[1].querySelector("p").innerText = parseFloat(currentAirport.longitude_deg).toFixed(5)
+    gpsData[3].querySelector("p").innerText = player.data.fuel_amount.toString() + " [L]"
 
     // return weather from the weather api
     const weather = await createAPICall("weather", player.data.location)
@@ -230,7 +235,7 @@ const updateGame = async () => {
     if (player.data.currency <= 0 || player.data.fuel_amount <= 0) {
         console.log("GAME OVER!")
         dialog.innerHTML = ""
-        dialog.innerText = "GAME OVER! you ran out of resources!"
+        dialog.innerText = "GAME OVER! You ran out of resources!"
         dialog.showModal()
 
         setTimeout(() => {
@@ -248,7 +253,7 @@ async function flyTo() {
     const currentAirport = await createAPICall("airport", player.data.location);
     const startLatLng = L.latLng(currentAirport.latitude_deg, currentAirport.longitude_deg);
     const endLatLng = L.latLng(this.data.airport.latitude_deg, this.data.airport.longitude_deg);
-    const duration = 2;
+    const duration = 10;
 
     if (!planeMarker) {
         planeMarker = L.marker(startLatLng, {
@@ -258,15 +263,23 @@ async function flyTo() {
     }
 
     animatePlane(startLatLng, endLatLng, duration);
-    map.panTo(L.latLng(this.data.airport.latitude_deg, this.data.airport.longitude_deg))
+    //map.panTo(L.latLng(this.data.airport.latitude_deg, this.data.airport.longitude_deg))
     // check if this airport is the one in the contract
     // remove markers somehow
     // generate new markers for close airports (put the code that generated it earlier in function probably)
+
+    //Wait for the animation to finish, duration1 is the betweensteps time, and duration*10 is the steps, the last *10 is to convert it from frames to seconds
+    //-Eetu
+    await new Promise(r => setTimeout(r,(duration+duration*10)*10));
     // update player data
     player.data.location = this.data.airport.ident
 
     // update currency if we hit the contract airport
     if (player.data.location == player.contract.airport.ident) {
+        //A form to display the finished contract
+        await finishedContractScreen()
+
+        //update currency
         player.data.currency += player.contract.delivery_value
         await getContracts()
     }
@@ -285,7 +298,8 @@ async function flyTo() {
 async function selectPlane() {
     console.log(this)
     console.log(this.data.id)
-    document.querySelector(".id-grid-temp").innerText = this.data.type
+    //This was being overriden anyways when loading a game
+    //document.querySelector(".id-grid-temp").innerText = this.data.type
     const listItems = this.parentNode.querySelectorAll("li")
     listItems.forEach((item) => item.removeEventListener('click', selectPlane))
 
@@ -476,6 +490,49 @@ const getContracts = async () => {
     }
 
     dialog.showModal()
+}
+
+const finishedContractScreen = async () => {
+    const dialog = document.querySelector('dialog');
+    // Create the form
+    const form = document.createElement('form');
+    form.id = 'contract-end-form';
+    form.method = 'dialog'; // Enables the dialog to close when the form is submitted
+
+    // Add form content
+    form.innerHTML =`
+        <h2>Contract complete!</h2>
+        <p>Contract details:\n</p>
+        <div style="text-transform: capitalize;">
+            Payload: ${player.contract.description}<br>
+            Destination: ${player.contract.airport.airport}<br>
+            Country: ${player.contract.airport.country}<br>
+            Reward: $${player.contract.delivery_value}<br><br>
+        </div>
+        <input type="submit" value="Finish contract">
+    `;
+
+    // Attach an event listener to handle form submission
+    const submissionPromise = new Promise((resolve) => {
+        form.addEventListener('submit', (event) => {
+            event.preventDefault(); // Prevent default form behavior
+            console.log('Contract finished successfully!');
+            dialog.innerHTML = ""; // Clear the dialog.
+            dialog.close(); // Close the dialog
+            resolve(); // Resolve the promise to indicate the user has pressed the button
+        });
+    });
+
+    // Append the form to the dialog (if not already appended)
+    if (!dialog.contains(form)) {
+        dialog.appendChild(form);
+    }
+
+    // Show the dialog
+    dialog.showModal();
+
+    // Wait for the user to finish interacting with the form
+    await submissionPromise;
 }
 
 const updateMarkers = async () => {
