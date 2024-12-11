@@ -19,7 +19,7 @@ const planeIcon = (bearing) => L.divIcon({
 let planeMarker = null;
 
 const animatePlane = (startLatLng, endLatLng, duration) => {
-    const steps = 10*duration;
+    const steps = 10 * duration;
     const stepDelay = duration;
     let step = 0;
 
@@ -225,6 +225,7 @@ const refreshUIValues = async () => {
 const updateGame = async () => {
     console.log("Before update", player.data)
     player.data = await createAPIPostCall("player/update", player.data.screen_name, player.data)
+    await refreshUIValues()
     console.log("After update", player.data)
 
 
@@ -244,7 +245,6 @@ const updateGame = async () => {
         }, 2000)
     }
 
-    await refreshUIValues()
 }
 
 async function flyTo() {
@@ -270,9 +270,11 @@ async function flyTo() {
 
     //Wait for the animation to finish, duration1 is the betweensteps time, and duration*10 is the steps, the last *10 is to convert it from frames to seconds
     //-Eetu
-    await new Promise(r => setTimeout(r,(duration+duration*10)*10));
+    await new Promise(r => setTimeout(r, (duration + duration * 10) * 10));
     // update player data
     player.data.location = this.data.airport.ident
+    // update game data
+    await updateGame()
 
     // update currency if we hit the contract airport
     if (player.data.location == player.contract.airport.ident) {
@@ -285,8 +287,6 @@ async function flyTo() {
     }
 
 
-    // update game data
-    await updateGame()
 
     // send data to backend when we hit the contract probably
     await updateMarkers()
@@ -505,7 +505,7 @@ const finishedContractScreen = async () => {
     form.method = 'dialog'; // Enables the dialog to close when the form is submitted
 
     // Add form content
-    form.innerHTML =`
+    form.innerHTML = `
         <h2>Contract complete!</h2>
         <p>Contract details:\n</p>
         <div style="text-transform: capitalize;">
